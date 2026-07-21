@@ -22,8 +22,10 @@
   h1 { font-size:1.75rem; color:#b45309; }
   .subtitle { text-align:center; color:#9d6b53; margin-bottom:4px; font-size:1rem; }
   #engine-status { text-align:center; font-size:.82rem; color:#b9a394; margin-bottom:6px; min-height:1.2em; }
-  #total-stars { text-align:center; font-size:1.2rem; margin-bottom:14px; color:#b45309; font-weight:700; }
+  #total-stars { text-align:center; font-size:1.2rem; margin-bottom:6px; color:#b45309; font-weight:700; }
 
+  .level-title { font-size:.95rem; font-weight:800; color:#b45309; margin:20px 4px 10px;
+                 text-transform:uppercase; letter-spacing:.6px; }
   .story-card {
     display:flex; align-items:center; gap:12px;
     background:#fff; border:3px solid #fbcfe8; border-radius:22px;
@@ -31,11 +33,17 @@
     box-shadow:0 4px 14px rgba(180,83,9,.08); transition:transform .12s;
   }
   .story-card:active { transform:scale(.98); }
+  .story-card.locked { filter:grayscale(1); opacity:.55; cursor:default; }
+  .story-card.locked:active { transform:none; }
   .story-card .emoji { font-size:2.2rem; }
   .story-card .mid { flex:1; }
   .story-card .title { font-size:1.12rem; font-weight:700; }
   .story-card .pace { font-size:.85rem; color:#9d6b53; }
+  .story-card .unlock-note { font-size:.85rem; color:#9d6b53; }
   .story-card .stars { font-size:1rem; letter-spacing:2px; }
+  .story-card .lock { font-size:1.5rem; }
+  #reset-progress { display:block; margin:26px auto 0; background:none; border:none;
+                    color:#c4a189; text-decoration:underline; font-size:.85rem; cursor:pointer; }
 
   .back { background:none; border:none; color:#b45309; font-size:1rem; cursor:pointer;
           margin-bottom:4px; text-align:left; flex:none; }
@@ -109,7 +117,6 @@
   .word.pause-ok::after   { content:'⏸'; font-size:.5em; color:#16a34a; margin-left:3px; vertical-align:super; }
   .word.pause-fast::after { content:'⏸'; font-size:.5em; color:#ea580c; margin-left:3px; vertical-align:super; opacity:.85; }
 
-  /* ===== Récap de fin, en grand ===== */
   .results-box { background:#fff; border-radius:26px; padding:34px 22px; text-align:center;
                  box-shadow:0 6px 18px rgba(180,83,9,.12); }
   .big-stars { font-size:4.6rem; letter-spacing:8px; margin:4px 0 14px; animation:pop .4s ease; }
@@ -121,6 +128,7 @@
   .rval { font-size:2.3rem; font-weight:800; color:#b45309; line-height:1.1; }
   .rlbl { font-size:.85rem; color:#9d6b53; margin-top:4px; }
   #res-pauses { font-size:1.08rem; color:#7c5843; margin-top:6px; min-height:1.3em; }
+  #res-unlock { font-size:1.15rem; color:#9d174d; font-weight:800; margin-top:10px; }
   #missed-words { margin-top:14px; font-size:1.15rem; color:#7c2d12; }
   .btn {
     display:inline-block; border:none; cursor:pointer; margin:8px 4px 0;
@@ -135,7 +143,6 @@
   #confetti span { position:absolute; top:-10%; font-size:1.6rem; animation:fall 2.6s ease-in forwards; }
   @keyframes fall { to { transform:translateY(115vh) rotate(360deg); } }
 
-  /* ===== Grand écran ===== */
   @media (min-width: 900px){
     .screen { max-width:1100px; }
     .track { height:190px; }
@@ -169,6 +176,7 @@
   <p id="engine-status"></p>
   <p id="total-stars">⭐ 0</p>
   <div id="story-list"></div>
+  <button id="reset-progress" onclick="resetProgress()">↺ Effacer la progression</button>
   <div class="warn" id="compat-warn"></div>
 </div>
 
@@ -215,6 +223,7 @@
       <div class="rstat"><div class="rval" id="res-pausesv">–</div><div class="rlbl">sauts de feuilles ⏸</div></div>
     </div>
     <p id="res-pauses"></p>
+    <p id="res-unlock"></p>
     <p id="missed-words"></p>
   </div>
   <div style="text-align:center; margin-top:14px;">
@@ -225,44 +234,74 @@
 </div>
 
 <script>
-/* ============ HISTOIRES (sans apostrophes ni traits d'union : contrainte reco vocale) ============ */
+/* ============ HISTOIRES (sans apostrophes ni traits d'union : contrainte reco vocale) ============
+   need = total d'étoiles requis pour débloquer l'histoire */
 const STORIES = [
-  { emoji:'🍎', title:'Caramel le poney', target:40, best:0,
+  { id:'pomme', emoji:'🍎', title:'Caramel le poney', target:40, need:0, best:0,
     text:"Léa arrive à la ferme ce matin. Son poney Caramel attend près de la barrière. Elle le brosse doucement et lui donne une pomme bien rouge. Caramel remue la queue car il est content. Ensuite, Léa pose la selle et met son casque pour la promenade." },
-  { emoji:'🌳', title:'Promenade en forêt', target:44, best:0,
+  { id:'foret', emoji:'🌳', title:'Promenade en forêt', target:44, need:0, best:0,
     text:"Ce matin, Léa monte sur Caramel pour une balade dans la forêt. Les oiseaux chantent et les feuilles dansent avec le vent. Le poney trotte sur le petit chemin plein de fleurs. Soudain, un lapin gris traverse devant eux. Caramel reste très calme et Léa le félicite avec une caresse." },
-  { emoji:'🎪', title:'Caramel au cirque', target:48, best:0,
+  { id:'cirque', emoji:'🎪', title:'Caramel au cirque', target:48, need:0, best:0,
     text:"Ce samedi, un cirque arrive au village avec des lumières partout. Caramel regarde les acrobates qui volent sous le grand chapiteau rouge. Un clown rigolo lui offre un ballon jaune. Le poney salue le public avec une belle révérence, et tout le monde applaudit très fort. Léa est fière de son artiste préféré." },
-  { emoji:'🏖️', title:'Caramel à la plage', target:50, best:0,
+  { id:'plage', emoji:'🏖️', title:'Caramel à la plage', target:50, need:2, best:0,
     text:"Cet été, Léa emmène Caramel voir la mer pour la première fois. Le poney pose un sabot sur le sable chaud, puis il recule, tout surpris. Une vague douce vient chatouiller ses jambes. Léa rit très fort. Ensemble, ils galopent le long de la plage, et le vent salé décoiffe la crinière de Caramel." },
-  { emoji:'🍂', title:'La tempête de feuilles', target:52, best:0,
+  { id:'feuilles', emoji:'🍂', title:'La tempête de feuilles', target:52, need:4, best:0,
     text:"Cet automne, le vent souffle fort sur la ferme. Des feuilles rouges et dorées tourbillonnent dans le pré. Caramel court après elles et saute pour les attraper. Léa ramasse un gros tas de feuilles, puis le poney plonge dedans, tout content. Ils jouent ainsi tout le reste de la journée." },
-  { emoji:'🏆', title:'Le grand concours', target:54, best:0,
+  { id:'concours', emoji:'🏆', title:'Le grand concours', target:54, need:6, best:0,
     text:"Dimanche, le grand jour arrive enfin : le concours du club. Léa respire un grand coup, elle a un peu peur. Caramel avance vers le premier obstacle et saute très haut. Le public applaudit fort. À la fin du parcours, Léa reçoit un joli ruban bleu. Elle serre son poney dans ses bras car ils forment une belle équipe." },
-  { emoji:'🗺️', title:'Le trésor du poney pirate', target:58, best:0,
+  { id:'tresor', emoji:'🗺️', title:'Le trésor du poney pirate', target:58, need:8, best:0,
     text:"Un matin, Léa trouve une vieille carte au fond de la grange. Elle montre un trésor caché près du grand chêne. Caramel porte un foulard rouge, comme un vrai pirate. Ils suivent le chemin, passent le pont de bois et comptent dix pas. Sous la terre, ils découvrent un coffre rempli de pommes dorées !" },
-  { emoji:'🌈', title:'Après la pluie', target:60, best:0,
+  { id:'pluie', emoji:'🌈', title:'Après la pluie', target:60, need:10, best:0,
     text:"La pluie tambourine sur le toit de la grange depuis ce matin. Caramel attend, le nez collé à la fenêtre. Enfin, le soleil revient et un arc de couleurs géant traverse le ciel. Léa monte en selle, et ils partent chercher le bout du fameux arc. Ils ne le trouvent pas, mais ils découvrent une mare pleine de grenouilles rigolotes." },
-  { emoji:'❄️', title:'La neige magique', target:62, best:0,
+  { id:'neige', emoji:'❄️', title:'La neige magique', target:62, need:12, best:0,
     text:"Ce matin, la ferme est toute blanche. La neige tombe doucement du ciel gris. Caramel souffle des petits nuages de vapeur avec son nez. Léa lance une boule de neige, et le poney saute pour la toucher du bout du museau. Ensuite, ils dessinent des traces rigolotes dans la poudre blanche, puis ils rentrent bien au chaud." },
-  { emoji:'⛰️', title:'Le sommet de la montagne', target:64, best:0,
+  { id:'montagne', emoji:'⛰️', title:'Le sommet de la montagne', target:64, need:15, best:0,
     text:"Cet hiver, Léa et Caramel partent en randonnée vers la grande montagne. Le sentier monte, tourne, et devient de plus en plus raide. Le poney avance à petits pas prudents entre les rochers gris. Tout en haut, la vue est magnifique : les maisons du village ressemblent à des jouets minuscules. Léa crie de joie, et la montagne répond en écho." },
-  { emoji:'🧚', title:'La fée des chevaux', target:66, best:0,
+  { id:'fee', emoji:'🧚', title:'La fée des chevaux', target:66, need:18, best:0,
     text:"Cette nuit, une fée entre sans bruit dans la petite écurie. Elle touche la crinière de Caramel avec sa baguette magique. Le poney brille comme une étoile et des ailes dorées poussent sur son dos. Il vole très haut dans le ciel plein de nuages roses. Au matin, Léa trouve une plume dorée posée sur la paille." },
-  { emoji:'🐣', title:'Le petit poulain', target:68, best:0,
+  { id:'poulain', emoji:'🐣', title:'Le petit poulain', target:68, need:21, best:0,
     text:"Une grande nouvelle attend Léa à la ferme : un poulain est né cette nuit ! Il tient à peine sur ses longues jambes fragiles. Caramel le pousse doucement du museau pour le rassurer. Le bébé fait trois pas, tombe sur la paille, puis se relève courageusement. Léa lui choisit un joli nom : Noisette." },
-  { emoji:'🐉', title:'Le dragon gentil', target:70, best:0,
+  { id:'dragon', emoji:'🐉', title:'Le dragon gentil', target:70, need:24, best:0,
     text:"Au fond de la forêt vit un petit dragon vert nommé Pistache. Il est triste car tout le monde a peur de lui. Caramel avance doucement et lui offre une pomme. Le dragon sourit, et une petite flamme de joie sort de son nez. Depuis ce jour, Pistache garde la ferme la nuit, et il réchauffe la paille en hiver." },
-  { emoji:'🌠', title:'La nuit des étoiles', target:74, best:0,
+  { id:'etoiles', emoji:'🌠', title:'La nuit des étoiles', target:74, need:27, best:0,
     text:"Ce soir, Léa installe une grande couverture dans le pré, tout près de Caramel. Le ciel est rempli de milliers de points brillants. Soudain, une étoile filante traverse la nuit comme une flèche de lumière. Léa ferme les yeux et fait un vœu secret. Le poney pose sa tête douce contre son épaule. Ensemble, ils comptent les étoiles très tard dans la nuit." },
-  { emoji:'🚀', title:'Un rêve dans les nuages', target:78, best:0,
+  { id:'reve', emoji:'🚀', title:'Un rêve dans les nuages', target:78, need:30, best:0,
     text:"Cette nuit, Caramel fait un rêve extraordinaire. Il porte un casque brillant et flotte doucement au milieu des planètes colorées. Les étoiles dansent autour de lui comme des lucioles géantes. Il rebondit sur la lune, léger comme une plume, et salue une comète pressée. Au réveil, le poney observe longtemps le ciel du matin, comme pour garder un morceau de son rêve." }
+];
+const LEVELS = [
+  { name:'Niveau 1 · Petit trot 🌱', from:0, to:4 },
+  { name:'Niveau 2 · Grand galop 🐎', from:5, to:9 },
+  { name:'Niveau 3 · Champion 🏆', from:10, to:14 }
 ];
 const PACE_LABEL = t => t<=48 ? '🦋 lent' : t<=58 ? '🦋 moyen' : t<=68 ? '🦋 rapide' : '🦋 très rapide';
 
 /* mots-outils courts que la reco avale souvent : on les pardonne quand la suite est bonne */
 const FORGIVE = new Set(['le','la','les','un','une','des','de','du','au','aux','et','en','y','a',
                          'ce','se','sa','son','ses','ne','que','qui','il','ils','elle','ou']);
+
+/* ============ SAUVEGARDE LOCALE ============ */
+const SAVE_KEY = 'caramel-progress-v1';
+function loadProgress(){
+  try{
+    const j = JSON.parse(localStorage.getItem(SAVE_KEY) || '{}');
+    if(j && j.stars) STORIES.forEach(s=>{ if(j.stars[s.id]) s.best = Math.min(3, j.stars[s.id]|0); });
+  }catch(_){}
+}
+function saveProgress(){
+  try{
+    const stars = {};
+    STORIES.forEach(s=>{ if(s.best) stars[s.id] = s.best; });
+    localStorage.setItem(SAVE_KEY, JSON.stringify({ stars }));
+  }catch(_){}
+}
+function resetProgress(){
+  if(!confirm('Tout recommencer ? Toutes les étoiles seront effacées.')) return;
+  try{ localStorage.removeItem(SAVE_KEY); }catch(_){}
+  STORIES.forEach(s=>s.best=0);
+  renderHome();
+}
+function totalStars(){ return STORIES.reduce((a,s)=>a+s.best,0); }
+function isUnlocked(i){ return totalStars() >= STORIES[i].need; }
 
 /* ============ ÉTAT ============ */
 let currentIdx = 0, wordEls = [], raceTimer = null,
@@ -470,19 +509,33 @@ function show(id){
   document.getElementById(id).classList.add('active');
 }
 function renderHome(){
-  const total = STORIES.reduce((a,s)=>a+s.best,0);
-  document.getElementById('total-stars').textContent = '⭐ ' + total;
+  const total = totalStars();
+  document.getElementById('total-stars').textContent = '⭐ ' + total + ' / ' + (STORIES.length*3);
   const box = document.getElementById('story-list');
   box.innerHTML = '';
-  STORIES.forEach((s,i)=>{
-    const c = document.createElement('div');
-    c.className = 'story-card';
-    c.innerHTML = `<span class="emoji">${s.emoji}</span>
-      <span class="mid"><span class="title">${s.title}</span><br>
-      <span class="pace">${PACE_LABEL(s.target)}</span></span>
-      <span class="stars">${'⭐'.repeat(s.best)}${'☆'.repeat(3-s.best)}</span>`;
-    c.onclick = ()=>openStory(i);
-    box.appendChild(c);
+  LEVELS.forEach(lv=>{
+    const h = document.createElement('div');
+    h.className = 'level-title'; h.textContent = lv.name;
+    box.appendChild(h);
+    for(let i=lv.from; i<=lv.to && i<STORIES.length; i++){
+      const s = STORIES[i];
+      const un = isUnlocked(i);
+      const c = document.createElement('div');
+      c.className = 'story-card' + (un ? '' : ' locked');
+      if(un){
+        c.innerHTML = `<span class="emoji">${s.emoji}</span>
+          <span class="mid"><span class="title">${s.title}</span><br>
+          <span class="pace">${PACE_LABEL(s.target)}</span></span>
+          <span class="stars">${'⭐'.repeat(s.best)}${'☆'.repeat(3-s.best)}</span>`;
+        c.onclick = ()=>openStory(i);
+      } else {
+        c.innerHTML = `<span class="emoji">${s.emoji}</span>
+          <span class="mid"><span class="title">${s.title}</span><br>
+          <span class="unlock-note">Encore ${s.need - total} ⭐ pour débloquer</span></span>
+          <span class="lock">🔒</span>`;
+      }
+      box.appendChild(c);
+    }
   });
 }
 
@@ -532,6 +585,7 @@ function median(arr){
   return s[Math.floor(s.length/2)];
 }
 function openStory(i){
+  if(!isUnlocked(i)) return;
   stopAll();
   ensureVosk();
   currentIdx = i;
@@ -784,8 +838,13 @@ function finishExercise(){
   const beatFly = state.childFinished && !state.flyDone;
   const stars = (precision>=90 && beatFly) ? 3 : (precision>=75) ? 2 : 1;
 
+  /* déblocages : état avant / après */
+  const beforeUnlocked = STORIES.map((_,i)=>isUnlocked(i));
   STORIES[currentIdx].best = Math.max(STORIES[currentIdx].best, stars);
-  if(stars === 3){ fanfare(); confetti(); } else beep(784, 0.2, 0.12);
+  saveProgress();
+  const newly = STORIES.filter((_,i)=>!beforeUnlocked[i] && isUnlocked(i));
+
+  if(stars === 3 || newly.length){ fanfare(); confetti(); } else beep(784, 0.2, 0.12);
 
   document.getElementById('res-stars').textContent = '⭐'.repeat(stars) + '☆'.repeat(3-stars);
   document.getElementById('res-race').textContent = beatFly
@@ -807,15 +866,24 @@ function finishExercise(){
   else if(evald >= 2 && okp/evald < 0.4) ptxt = 'Astuce : respire aux virgules et aux points, Caramel sautera les feuilles 🍂';
   document.getElementById('res-pauses').textContent = ptxt;
 
+  document.getElementById('res-unlock').textContent = newly.length
+    ? '🔓 ' + (newly.length > 1 ? 'Nouvelles histoires débloquées : ' : 'Nouvelle histoire débloquée : ')
+      + newly.map(s=>s.emoji + ' ' + s.title).join(' · ')
+    : '';
+
   const missed = state.target.filter((_,i)=>state.status[i]!=='read').map(w=>w.raw);
   document.getElementById('missed-words').innerHTML = missed.length
     ? 'Mots à apprivoiser : <b>' + missed.slice(0,6).join(' · ') + '</b>'
     : '💯 Tu as lu tous les mots !';
+  const nx = currentIdx + 1;
   document.getElementById('btn-next').style.display =
-    currentIdx < STORIES.length-1 ? 'inline-block' : 'none';
+    (nx < STORIES.length && isUnlocked(nx)) ? 'inline-block' : 'none';
   show('screen-results');
 }
-function nextStory(){ openStory(Math.min(currentIdx+1, STORIES.length-1)); }
+function nextStory(){
+  const nx = Math.min(currentIdx+1, STORIES.length-1);
+  if(isUnlocked(nx)) openStory(nx);
+}
 function stopAll(){
   state.running = false;
   stopWebSpeech();
@@ -832,6 +900,7 @@ function stopAll(){
 const hasWASM = typeof WebAssembly === 'object';
 const hasSR = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
 if(!hasWASM && !hasSR) showCompat();
+loadProgress();
 renderHome();
 </script>
 </body>
