@@ -18,7 +18,8 @@
 
   header { text-align:center; margin:10px 0 4px; }
   h1 { font-size:1.75rem; color:#b45309; }
-  .subtitle { text-align:center; color:#9d6b53; margin-bottom:8px; font-size:1rem; }
+  .subtitle { text-align:center; color:#9d6b53; margin-bottom:4px; font-size:1rem; }
+  #engine-status { text-align:center; font-size:.82rem; color:#b9a394; margin-bottom:6px; min-height:1.2em; }
   #total-stars { text-align:center; font-size:1.2rem; margin-bottom:14px; color:#b45309; font-weight:700; }
 
   .story-card {
@@ -37,7 +38,6 @@
   .back { background:none; border:none; color:#b45309; font-size:1rem; cursor:pointer; margin-bottom:4px; }
   .story-head { text-align:center; font-size:1.1rem; font-weight:700; margin:0 0 8px; color:#b45309; }
 
-  /* ===== Barre de contrôle EN HAUT ===== */
   .control-bar {
     display:flex; align-items:center; gap:14px;
     background:#fff; border-radius:20px; padding:10px 14px; margin-bottom:10px;
@@ -57,7 +57,6 @@
   #heard { font-size:.88rem; color:#b9a394; font-style:italic; min-height:1.2em; margin-top:2px;
            white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
-  /* ===== Piste de course ===== */
   .track {
     position:relative; height:118px; border-radius:20px; overflow:hidden;
     background:linear-gradient(180deg,#7dd3fc 0%,#bae6fd 48%,#86efac 48%,#4ade80 100%);
@@ -84,7 +83,6 @@
                font-size:.95rem; color:#9d6b53; font-weight:700; margin-bottom:8px; padding:0 4px; }
   .quit { background:none; border:none; color:#b98a6f; font-size:.9rem; cursor:pointer; text-decoration:underline; }
 
-  /* ===== Zone karaoké ===== */
   #text-display {
     position:relative;
     background:#fff; border-radius:22px; padding:26px 20px;
@@ -102,7 +100,6 @@
   }
   @keyframes pulse { 0%,100%{box-shadow:0 0 0 3px #f59e0b;} 50%{box-shadow:0 0 0 7px #f59e0b55;} }
 
-  /* ===== Résultats ===== */
   .results-box { background:#fff; border-radius:22px; padding:26px 18px; text-align:center;
                  box-shadow:0 6px 18px rgba(180,83,9,.12); }
   .big-stars { font-size:3.4rem; letter-spacing:6px; margin:4px 0 12px; animation:pop .4s ease; }
@@ -131,6 +128,7 @@
 <div id="screen-home" class="screen active">
   <header><h1>🐴 La course de Caramel</h1></header>
   <p class="subtitle">Lis vite et bien pour battre Zip le papillon !</p>
+  <p id="engine-status"></p>
   <p id="total-stars">⭐ 0</p>
   <div id="story-list"></div>
   <div class="warn" id="compat-warn"></div>
@@ -196,13 +194,175 @@ const STORIES = [
     text:"Cette nuit, une fée entre sans bruit dans la petite écurie. Elle touche la crinière de Caramel avec sa baguette magique. Le poney brille comme une étoile et des ailes dorées poussent sur son dos. Il vole très haut dans le ciel plein de nuages roses. Au matin, Léa trouve une plume dorée posée sur la paille." }
 ];
 const PACE_LABEL = t => t<=42 ? '🦋 lent' : t<=50 ? '🦋 moyen' : t<=58 ? '🦋 rapide' : '🦋 très rapide';
-const HURDLES = [25, 50, 75]; /* jalons % : haies que Caramel saute */
+const HURDLES = [25, 50, 75];
 
 /* ============ ÉTAT ============ */
-let currentIdx = 0, wordEls = [], recognition = null, raceTimer = null,
+let currentIdx = 0, wordEls = [], raceTimer = null,
     audioCtx = null, wakeLock = null, noResultTimer = null;
 const state = { target:[], status:[], progress:0, startTime:null, running:false,
                 finalTranscript:'', streak:0, flyDone:false, childFinished:false, gotAnyResult:false };
+
+/* ============ MOTEUR VOCAL : Vosk intégré + secours Google ============ */
+const VOSK_LIB = 'https://cdn.jsdelivr.net/npm/vosk-browser@0.0.8/dist/vosk.js';
+const MODEL_URL = 'models/fr.tar.gz'; /* auto-hébergé, même origine */
+let voskModel = null, voskPromise = null, engine = null, webRecognition = null;
+const audio = { ctx:null, stream:null, source:null, node:null, gain:null, recognizer:null };
+
+function setVoiceStatus(txt){
+  const a = document.getElementById('engine-status');
+  if(a) a.textContent = txt;
+}
+function loadScript(src){
+  return new Promise((res, rej)=>{
+    const s = document.createElement('script');
+    s.src = src; s.onload = res; s.onerror = ()=>rej(new Error('script '+src));
+    document.head.appendChild(s);
+  });
+}
+async function getModelBlob(onPct){
+  let cache = null;
+  try{
+    cache = await caches.open('vosk-model-v1');
+    const hit = await cache.match(MODEL_URL);
+    if(hit) return await hit.blob();
+  }catch(_){}
+  const resp = await fetch(MODEL_URL);
+  if(!resp.ok) throw new Error('modele HTTP ' + resp.status);
+  const total = +resp.headers.get('content-length') || 0;
+  let blob;
+  if(resp.body && total){
+    const reader = resp.body.getReader();
+    const chunks = []; let got = 0;
+    for(;;){
+      const {done, value} = await reader.read();
+      if(done) break;
+      chunks.push(value); got += value.length;
+      onPct(Math.min(99, Math.round(100*got/total)));
+    }
+    blob = new Blob(chunks);
+  } else {
+    blob = await resp.blob();
+  }
+  if(cache){ try{ await cache.put(MODEL_URL, new Response(blob)); }catch(_){} }
+  return blob;
+}
+function ensureVosk(){
+  voskPromise = voskPromise || (async ()=>{
+    try{
+      if(typeof WebAssembly !== 'object') throw new Error('pas de WASM');
+      setVoiceStatus('🎙 Moteur vocal : chargement...');
+      await loadScript(VOSK_LIB);
+      const blob = await getModelBlob(p=>{
+        const t = '🎙 Moteur vocal : téléchargement ' + p + ' % (1re fois seulement)';
+        setVoiceStatus(t);
+        const l = document.getElementById('mic-label');
+        if(l && !state.running) l.textContent = 'Téléchargement du moteur : ' + p + ' %';
+      });
+      const blobUrl = URL.createObjectURL(blob);
+      try{ voskModel = await Vosk.createModel(blobUrl); }
+      catch(e1){ voskModel = await Vosk.createModel(MODEL_URL); }
+      setVoiceStatus('🎙 Moteur vocal prêt ✓ — la voix reste sur l\u2019appareil');
+      return true;
+    }catch(err){
+      console.error('Vosk indisponible :', err);
+      setVoiceStatus('🎙 Moteur intégré indisponible → reconnaissance Google en secours');
+      return false;
+    }
+  })();
+  return voskPromise;
+}
+
+async function startVoskEngine(){
+  const stream = await navigator.mediaDevices.getUserMedia({
+    audio: { echoCancellation:true, noiseSuppression:true, channelCount:1 }
+  });
+  audio.stream = stream;
+  const Ctx = window.AudioContext || window.webkitAudioContext;
+  audio.ctx = new Ctx();
+  try{ await audio.ctx.resume(); }catch(_){}
+  let rec;
+  try{ rec = new voskModel.KaldiRecognizer(audio.ctx.sampleRate); }
+  catch(e){ rec = new voskModel.KaldiRecognizer(); }
+  audio.recognizer = rec;
+  rec.on('result', (m)=>{
+    if(!state.running) return;
+    const t = (m && m.result && m.result.text) || '';
+    if(t) state.finalTranscript += t + ' ';
+    ingest(state.finalTranscript);
+  });
+  rec.on('partialresult', (m)=>{
+    if(!state.running) return;
+    const p = (m && m.result && m.result.partial) || '';
+    ingest(state.finalTranscript + ' ' + p);
+  });
+  audio.source = audio.ctx.createMediaStreamSource(stream);
+  audio.node = audio.ctx.createScriptProcessor(4096, 1, 1);
+  audio.node.onaudioprocess = (e)=>{
+    if(!state.running) return;
+    try{ audio.recognizer.acceptWaveform(e.inputBuffer); }catch(_){}
+  };
+  audio.gain = audio.ctx.createGain();
+  audio.gain.gain.value = 0; /* évite le retour micro dans les enceintes */
+  audio.source.connect(audio.node);
+  audio.node.connect(audio.gain);
+  audio.gain.connect(audio.ctx.destination);
+}
+function stopVoskEngine(){
+  try{ if(audio.node){ audio.node.onaudioprocess = null; audio.node.disconnect(); } }catch(_){}
+  try{ if(audio.source) audio.source.disconnect(); }catch(_){}
+  try{ if(audio.gain) audio.gain.disconnect(); }catch(_){}
+  try{ if(audio.recognizer && audio.recognizer.remove) audio.recognizer.remove(); }catch(_){}
+  try{ if(audio.stream) audio.stream.getTracks().forEach(t=>t.stop()); }catch(_){}
+  try{ if(audio.ctx) audio.ctx.close(); }catch(_){}
+  audio.ctx = audio.stream = audio.source = audio.node = audio.gain = audio.recognizer = null;
+}
+
+const ERR_MSG = {
+  'not-allowed': 'Micro refusé 😕 Icône 🔒 à côté de l\u2019adresse → Micro → Autoriser, puis recharge.',
+  'service-not-allowed': 'La reconnaissance est bloquée ici. Ouvre le lien directement dans Chrome.',
+  'network': 'La reconnaissance a besoin d\u2019internet. Vérifie la connexion 📶',
+  'audio-capture': 'Aucun micro détecté sur cet appareil 🎙️',
+  'language-not-supported': 'Le français n\u2019est pas disponible sur ce navigateur.'
+};
+function startWebSpeech(){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR){ showCompat(); return false; }
+  webRecognition = new SR();
+  webRecognition.lang = 'fr-FR';
+  webRecognition.continuous = true;
+  webRecognition.interimResults = true;
+  webRecognition.onresult = (e)=>{
+    let interim = '';
+    for(let i=e.resultIndex; i<e.results.length; i++){
+      if(e.results[i].isFinal) state.finalTranscript += e.results[i][0].transcript + ' ';
+      else interim += e.results[i][0].transcript + ' ';
+    }
+    ingest(state.finalTranscript + ' ' + interim);
+  };
+  webRecognition.onerror = (e)=>{
+    const msg = ERR_MSG[e.error];
+    if(msg) document.getElementById('mic-label').textContent = msg;
+  };
+  webRecognition.onend = ()=>{
+    if(state.running && engine === 'webspeech'){
+      setTimeout(()=>{ try{ webRecognition.start(); }catch(_){} }, 200);
+    }
+  };
+  try{ webRecognition.start(); }catch(_){ return false; }
+  return true;
+}
+function stopWebSpeech(){
+  if(webRecognition){ try{ webRecognition.stop(); }catch(_){} webRecognition = null; }
+}
+
+/* entonnoir commun : tout ce qui est entendu passe ici */
+function ingest(allText){
+  state.gotAnyResult = true;
+  if(noResultTimer){ clearTimeout(noResultTimer); noResultTimer = null; }
+  const tail = allText.trim().split(/\s+/).slice(-5).join(' ');
+  document.getElementById('heard').textContent = tail ? '👂 ' + tail : '';
+  processTranscript(allText);
+}
 
 /* ============ SONS ============ */
 function beep(freq, dur=0.08, gain=0.12){
@@ -261,6 +421,7 @@ function tokenize(text){
 }
 function openStory(i){
   stopAll();
+  ensureVosk(); /* précharge le moteur en arrière-plan */
   currentIdx = i;
   const s = STORIES[i];
   Object.assign(state, { target:tokenize(s.text), progress:0, startTime:null, running:false,
@@ -277,7 +438,6 @@ function openStory(i){
     return sp;
   });
 
-  /* haies sur la piste */
   document.querySelectorAll('.hurdle').forEach(h=>h.remove());
   const track = document.querySelector('.track');
   HURDLES.forEach(p=>{
@@ -312,79 +472,47 @@ function scrollToCurrent(smooth=true){
   else box.scrollTop = target;
 }
 
-/* ============ RECONNAISSANCE VOCALE ============ */
-const ERR_MSG = {
-  'not-allowed': 'Micro refusé 😕 Icône 🔒 à côté de l\u2019adresse → Micro → Autoriser, puis recharge.',
-  'service-not-allowed': 'La reconnaissance est bloquée ici. Ouvre le lien directement dans Chrome.',
-  'network': 'La reconnaissance a besoin d\u2019internet. Vérifie la connexion 📶',
-  'audio-capture': 'Aucun micro détecté sur cet appareil 🎙️',
-  'language-not-supported': 'Le français n\u2019est pas disponible sur ce navigateur.'
-};
+/* ============ DÉMARRAGE LECTURE ============ */
 async function micTap(){
   if(state.running) return;
   beep(660, 0.06);
   const label = document.getElementById('mic-label');
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if(!SR){ showCompat(); show('screen-home'); return; }
+  label.textContent = 'Préparation du micro... 🎙️';
 
-  /* Demande explicite du micro AVANT la reco : fiabilise Chrome Android */
-  if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
-    label.textContent = 'Je demande le micro... 🎙️';
+  const voskOk = await ensureVosk();
+  state.running = true;
+  engine = null;
+
+  if(voskOk){
     try{
-      const stream = await navigator.mediaDevices.getUserMedia({audio:true});
-      stream.getTracks().forEach(t=>t.stop());
+      await startVoskEngine();
+      engine = 'vosk';
     }catch(err){
-      label.textContent = (err.name==='NotFoundError')
-        ? ERR_MSG['audio-capture']
-        : ERR_MSG['not-allowed'];
-      return;
+      if(err && (err.name==='NotAllowedError' || err.name==='SecurityError')){
+        label.textContent = ERR_MSG['not-allowed']; state.running = false; return;
+      }
+      if(err && err.name==='NotFoundError'){
+        label.textContent = ERR_MSG['audio-capture']; state.running = false; return;
+      }
+      console.error('vosk start', err);
+      stopVoskEngine();
     }
   }
+  if(!engine){
+    if(startWebSpeech()) engine = 'webspeech';
+    else { state.running = false; return; }
+  }
 
-  recognition = new SR();
-  recognition.lang = 'fr-FR';
-  recognition.continuous = true;
-  recognition.interimResults = true;
-
-  recognition.onstart = ()=>{
-    if(!state.gotAnyResult) label.textContent = 'Je t\u2019écoute... lis l\u2019histoire ! 🎧';
-  };
-  recognition.onresult = (e)=>{
-    state.gotAnyResult = true;
-    if(noResultTimer){ clearTimeout(noResultTimer); noResultTimer = null; }
-    let interim = '';
-    for(let i=e.resultIndex; i<e.results.length; i++){
-      if(e.results[i].isFinal) state.finalTranscript += e.results[i][0].transcript + ' ';
-      else interim += e.results[i][0].transcript + ' ';
-    }
-    const all = state.finalTranscript + ' ' + interim;
-    const tail = all.trim().split(/\s+/).slice(-5).join(' ');
-    document.getElementById('heard').textContent = tail ? '👂 ' + tail : '';
-    processTranscript(all);
-  };
-  recognition.onerror = (e)=>{
-    const msg = ERR_MSG[e.error];
-    if(msg) label.textContent = msg;
-  };
-  recognition.onend = ()=>{
-    if(state.running){ setTimeout(()=>{ try{ recognition.start(); }catch(_){} }, 200); }
-  };
-
-  state.running = true;
-  try{ recognition.start(); }
-  catch(err){ label.textContent = 'Impossible de démarrer. Recharge la page.'; state.running=false; return; }
-
+  label.textContent = 'Je t\u2019écoute... lis l\u2019histoire ! 🎧';
   document.getElementById('btn-mic').classList.add('listening');
   document.getElementById('btn-quit').style.display = 'inline-block';
 
-  /* écran toujours allumé pendant la lecture */
   try{ if(navigator.wakeLock) navigator.wakeLock.request('screen').then(w=>wakeLock=w); }catch(_){}
 
-  /* alerte si rien entendu après 6 s */
   noResultTimer = setTimeout(()=>{
     if(!state.gotAnyResult)
       label.textContent = 'Je ne t\u2019entends pas 🤔 Parle plus fort, tout près du téléphone !';
-  }, 6000);
+  }, 7000);
 
   raceTimer = setInterval(()=>{
     if(!state.startTime) return;
@@ -399,7 +527,7 @@ async function micTap(){
 function showCompat(){
   const w = document.getElementById('compat-warn');
   w.style.display = 'block';
-  w.innerHTML = 'Ce navigateur ne connaît pas la reconnaissance vocale.<br>Utilise <b>Chrome sur Android ou sur ordinateur</b> 😊';
+  w.innerHTML = 'Ce navigateur ne peut pas faire de reconnaissance vocale.<br>Essaie avec <b>Chrome</b> à jour 😊';
 }
 
 /* Alignement tolérant : fenêtre de 4 mots + Levenshtein ≤ 1 */
@@ -508,7 +636,9 @@ function finishExercise(){
 function nextStory(){ openStory(Math.min(currentIdx+1, STORIES.length-1)); }
 function stopAll(){
   state.running = false;
-  if(recognition){ try{ recognition.stop(); }catch(_){} recognition = null; }
+  stopWebSpeech();
+  stopVoskEngine();
+  engine = null;
   if(raceTimer){ clearInterval(raceTimer); raceTimer = null; }
   if(noResultTimer){ clearTimeout(noResultTimer); noResultTimer = null; }
   if(wakeLock){ try{ wakeLock.release(); }catch(_){} wakeLock = null; }
@@ -517,15 +647,9 @@ function stopAll(){
 }
 
 /* ============ COMPATIBILITÉ AU CHARGEMENT ============ */
-const ua = navigator.userAgent;
-const isIOS = /iPad|iPhone|iPod/.test(ua) || (/(Macintosh)/.test(ua) && navigator.maxTouchPoints > 1);
-if(!(window.SpeechRecognition || window.webkitSpeechRecognition)){
-  showCompat();
-} else if(isIOS){
-  const w = document.getElementById('compat-warn');
-  w.style.display = 'block';
-  w.innerHTML = '📱 Sur iPhone/iPad, la reconnaissance vocale suit mal les mots en direct.<br>Préfère <b>Chrome sur Android ou sur un ordinateur</b>.';
-}
+const hasWASM = typeof WebAssembly === 'object';
+const hasSR = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+if(!hasWASM && !hasSR) showCompat();
 renderHome();
 </script>
 </body>
