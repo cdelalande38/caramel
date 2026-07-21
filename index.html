@@ -312,11 +312,19 @@ async function startVoskEngine(){
   });
   audio.stream = stream;
   const Ctx = window.AudioContext || window.webkitAudioContext;
-  audio.ctx = new Ctx();
+  try{ audio.ctx = new Ctx({ sampleRate: 16000 }); }  /* fréquence native du modèle */
+  catch(_){ audio.ctx = new Ctx(); }
   try{ await audio.ctx.resume(); }catch(_){}
+  /* Grammaire : la reco ne connaît que les mots de cette histoire → précision maximale */
+  const vocab = [...new Set(state.target.map(w => w.raw.toLowerCase().replace(/[^\p{L}0-9]/gu, '')))]
+    .filter(Boolean);
+  const grammar = JSON.stringify(vocab.concat(['[unk]']));
   let rec;
-  try{ rec = new voskModel.KaldiRecognizer(audio.ctx.sampleRate); }
-  catch(e){ rec = new voskModel.KaldiRecognizer(); }
+  try{ rec = new voskModel.KaldiRecognizer(audio.ctx.sampleRate, grammar); }
+  catch(e1){
+    try{ rec = new voskModel.KaldiRecognizer(audio.ctx.sampleRate); }
+    catch(e2){ rec = new voskModel.KaldiRecognizer(); }
+  }
   audio.recognizer = rec;
   rec.on('result', (m)=>{
     if(!state.running) return;
