@@ -12,14 +12,14 @@
     min-height:100vh; color:#5b3a29;
     background:linear-gradient(180deg,#fff1f5 0%,#fef3e2 60%,#fdeef7 100%);
   }
-  .screen { display:none; max-width:640px; margin:0 auto; padding:16px 14px 40px; }
+  .screen { display:none; max-width:680px; margin:0 auto; padding:14px 12px 30px; }
   .screen.active { display:block; animation:pop .3s ease; }
   @keyframes pop { from{opacity:0; transform:scale(.97);} to{opacity:1; transform:scale(1);} }
 
-  header { text-align:center; margin:12px 0 4px; }
-  h1 { font-size:1.8rem; color:#b45309; }
-  .subtitle { text-align:center; color:#9d6b53; margin-bottom:8px; font-size:1.02rem; }
-  #total-stars { text-align:center; font-size:1.2rem; margin-bottom:16px; color:#b45309; font-weight:700; }
+  header { text-align:center; margin:10px 0 4px; }
+  h1 { font-size:1.75rem; color:#b45309; }
+  .subtitle { text-align:center; color:#9d6b53; margin-bottom:8px; font-size:1rem; }
+  #total-stars { text-align:center; font-size:1.2rem; margin-bottom:14px; color:#b45309; font-weight:700; }
 
   .story-card {
     display:flex; align-items:center; gap:12px;
@@ -34,52 +34,75 @@
   .story-card .pace { font-size:.85rem; color:#9d6b53; }
   .story-card .stars { font-size:1rem; letter-spacing:2px; }
 
-  .back { background:none; border:none; color:#b45309; font-size:1.02rem; cursor:pointer; margin-bottom:6px; }
+  .back { background:none; border:none; color:#b45309; font-size:1rem; cursor:pointer; margin-bottom:4px; }
+  .story-head { text-align:center; font-size:1.1rem; font-weight:700; margin:0 0 8px; color:#b45309; }
 
-  /* ===== Piste de course ===== */
-  .track {
-    position:relative; height:96px; border-radius:20px; overflow:hidden;
-    background:linear-gradient(180deg,#bae6fd 0%,#bae6fd 55%,#86efac 55%,#4ade80 100%);
-    box-shadow:inset 0 2px 8px rgba(0,0,0,.08); margin-bottom:6px;
+  /* ===== Barre de contrôle EN HAUT ===== */
+  .control-bar {
+    display:flex; align-items:center; gap:14px;
+    background:#fff; border-radius:20px; padding:10px 14px; margin-bottom:10px;
+    box-shadow:0 4px 14px rgba(180,83,9,.10);
   }
-  #pony { position:absolute; bottom:4px; left:0; font-size:2.3rem; transition:left .35s ease; z-index:2; }
-  #pony.hop { animation:hop .3s ease; }
-  #pony.stumble { animation:stumble .4s ease; }
-  @keyframes hop { 50%{ transform:translateY(-16px);} }
-  @keyframes stumble { 25%{transform:rotate(-12deg);} 75%{transform:rotate(10deg);} }
-  #fly { position:absolute; top:6px; left:0; font-size:1.6rem; transition:left .25s linear; z-index:1; }
-  .finish { position:absolute; right:4px; bottom:6px; font-size:2rem; }
-  #spark { position:absolute; bottom:38px; font-size:1.1rem; display:none; z-index:2; }
-
-  .race-info { display:flex; justify-content:space-between; align-items:center;
-               font-size:.95rem; color:#9d6b53; font-weight:700; margin-bottom:10px; padding:0 4px; }
-
-  .story-head { text-align:center; font-size:1.15rem; font-weight:700; margin:2px 0 8px; color:#b45309; }
-  #text-display {
-    background:#fff; border-radius:22px; padding:20px 18px;
-    font-size:1.5rem; line-height:2.35; color:#3f2d20;
-    box-shadow:0 6px 18px rgba(180,83,9,.12);
-  }
-  .word { padding:2px 5px; border-radius:8px; }
-  .word.current { background:#fde68a; box-shadow:0 0 0 3px #f59e0b; animation:pulse 1.2s infinite; }
-  .word.read   { background:#bbf7d0; color:#14532d; }
-  .word.missed { background:#fed7aa; color:#7c2d12; }
-  @keyframes pulse { 0%,100%{box-shadow:0 0 0 3px #f59e0b;} 50%{box-shadow:0 0 0 6px #f59e0b55;} }
-
-  .mic-zone { text-align:center; margin-top:18px; }
   #btn-mic {
-    width:100px; height:100px; border-radius:50%; border:none; cursor:pointer;
-    font-size:2.7rem; color:#fff;
+    flex:none; width:72px; height:72px; border-radius:50%; border:none; cursor:pointer;
+    font-size:2rem; color:#fff;
     background:linear-gradient(145deg,#f472b6,#c084fc);
-    box-shadow:0 8px 20px rgba(196,132,252,.45); transition:transform .12s;
+    box-shadow:0 6px 16px rgba(196,132,252,.45); transition:transform .12s;
   }
   #btn-mic:active { transform:scale(.94); }
   #btn-mic.listening { animation:micpulse 1.3s infinite; }
-  @keyframes micpulse { 0%,100%{box-shadow:0 8px 20px rgba(196,132,252,.45);} 50%{box-shadow:0 0 0 16px rgba(244,114,182,.25);} }
-  .mic-label { margin-top:8px; font-size:1.05rem; font-weight:700; color:#9d6b53; min-height:1.4em; }
-  #heard { font-size:.85rem; color:#b9a394; min-height:1.3em; margin-top:4px; font-style:italic; }
-  .quit { background:none; border:none; color:#b98a6f; font-size:.95rem; margin-top:12px; cursor:pointer; text-decoration:underline; }
+  @keyframes micpulse { 0%,100%{box-shadow:0 6px 16px rgba(196,132,252,.45);} 50%{box-shadow:0 0 0 14px rgba(244,114,182,.22);} }
+  .control-txt { flex:1; min-width:0; }
+  .mic-label { font-size:1rem; font-weight:700; color:#9d6b53; }
+  #heard { font-size:.88rem; color:#b9a394; font-style:italic; min-height:1.2em; margin-top:2px;
+           white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
+  /* ===== Piste de course ===== */
+  .track {
+    position:relative; height:118px; border-radius:20px; overflow:hidden;
+    background:linear-gradient(180deg,#7dd3fc 0%,#bae6fd 48%,#86efac 48%,#4ade80 100%);
+    box-shadow:inset 0 2px 8px rgba(0,0,0,.08); margin-bottom:6px;
+  }
+  .sun { position:absolute; top:6px; right:12px; font-size:1.6rem; }
+  .cloud { position:absolute; font-size:1.4rem; opacity:.9; animation:drift linear infinite; }
+  .cloud.c1 { top:6px; animation-duration:38s; }
+  .cloud.c2 { top:26px; animation-duration:55s; animation-delay:-20s; font-size:1.1rem; }
+  @keyframes drift { from{ left:-12%; } to{ left:104%; } }
+  #pony { position:absolute; bottom:6px; left:0; font-size:2.7rem; transition:left .35s ease; z-index:3; }
+  #pony.hop { animation:hop .3s ease; }
+  #pony.hop-big { animation:hopbig .45s ease; }
+  #pony.stumble { animation:stumble .4s ease; }
+  @keyframes hop { 50%{ transform:translateY(-16px);} }
+  @keyframes hopbig { 50%{ transform:translateY(-34px) rotate(-6deg);} }
+  @keyframes stumble { 25%{transform:rotate(-12deg);} 75%{transform:rotate(10deg);} }
+  #fly { position:absolute; top:34px; left:0; font-size:1.6rem; transition:left .25s linear; z-index:2; }
+  .hurdle { position:absolute; bottom:8px; font-size:1.4rem; z-index:1; }
+  .finish { position:absolute; right:4px; bottom:8px; font-size:2.1rem; }
+  #spark { position:absolute; bottom:52px; font-size:1.2rem; display:none; z-index:3; }
+
+  .race-info { display:flex; justify-content:space-between; align-items:center; gap:8px;
+               font-size:.95rem; color:#9d6b53; font-weight:700; margin-bottom:8px; padding:0 4px; }
+  .quit { background:none; border:none; color:#b98a6f; font-size:.9rem; cursor:pointer; text-decoration:underline; }
+
+  /* ===== Zone karaoké ===== */
+  #text-display {
+    position:relative;
+    background:#fff; border-radius:22px; padding:26px 20px;
+    font-size:1.9rem; line-height:2.5; color:#3f2d20;
+    box-shadow:0 6px 18px rgba(180,83,9,.12);
+    max-height:44vh; overflow-y:auto;
+  }
+  .word { padding:2px 6px; border-radius:10px; opacity:.5; display:inline-block;
+          transition:opacity .2s, transform .2s, background .2s; }
+  .word.read   { opacity:1; background:#bbf7d0; color:#14532d; }
+  .word.missed { opacity:1; background:#fed7aa; color:#7c2d12; }
+  .word.current {
+    opacity:1; background:#fde68a; transform:scale(1.18);
+    box-shadow:0 0 0 3px #f59e0b; animation:pulse 1.2s infinite; font-weight:700;
+  }
+  @keyframes pulse { 0%,100%{box-shadow:0 0 0 3px #f59e0b;} 50%{box-shadow:0 0 0 7px #f59e0b55;} }
+
+  /* ===== Résultats ===== */
   .results-box { background:#fff; border-radius:22px; padding:26px 18px; text-align:center;
                  box-shadow:0 6px 18px rgba(180,83,9,.12); }
   .big-stars { font-size:3.4rem; letter-spacing:6px; margin:4px 0 12px; animation:pop .4s ease; }
@@ -95,14 +118,19 @@
   .btn.secondary { background:#fce7f3; color:#9d174d; }
   .warn { background:#fee2e2; color:#7f1d1d; padding:12px 16px; border-radius:14px;
           margin-top:14px; text-align:center; display:none; font-size:.98rem; }
+
+  #confetti { position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:50; }
+  #confetti span { position:absolute; top:-10%; font-size:1.6rem; animation:fall 2.6s ease-in forwards; }
+  @keyframes fall { to { transform:translateY(115vh) rotate(360deg); } }
 </style>
 </head>
 <body>
+<div id="confetti"></div>
 
 <!-- ACCUEIL -->
 <div id="screen-home" class="screen active">
   <header><h1>🐴 La course de Caramel</h1></header>
-  <p class="subtitle">Lis vite et bien pour gagner la course contre Zip le papillon !</p>
+  <p class="subtitle">Lis vite et bien pour battre Zip le papillon !</p>
   <p id="total-stars">⭐ 0</p>
   <div id="story-list"></div>
   <div class="warn" id="compat-warn"></div>
@@ -112,7 +140,19 @@
 <div id="screen-read" class="screen">
   <button class="back" onclick="stopAll(); show('screen-home'); renderHome();">← Retour</button>
   <div class="story-head" id="read-title"></div>
+
+  <div class="control-bar">
+    <button id="btn-mic" onclick="micTap()">🎤</button>
+    <div class="control-txt">
+      <p class="mic-label" id="mic-label">Appuie sur le micro et lis !</p>
+      <p id="heard"></p>
+    </div>
+  </div>
+
   <div class="track">
+    <span class="sun">☀️</span>
+    <span class="cloud c1">☁️</span>
+    <span class="cloud c2">☁️</span>
     <span id="fly">🦋</span>
     <span id="spark">✨</span>
     <span id="pony">🐴</span>
@@ -121,14 +161,10 @@
   <div class="race-info">
     <span id="streak">🔥 série : 0</span>
     <span id="timer">⏱ 0 s</span>
+    <button class="quit" id="btn-quit" onclick="finishExercise()" style="display:none">J'ai fini ✓</button>
   </div>
+
   <div id="text-display"></div>
-  <div class="mic-zone">
-    <button id="btn-mic" onclick="micTap()">🎤</button>
-    <p class="mic-label" id="mic-label">Appuie sur le micro et lis !</p>
-    <p id="heard"></p>
-    <button class="quit" id="btn-quit" onclick="finishExercise()" style="display:none">J'ai fini de lire</button>
-  </div>
 </div>
 
 <!-- RÉSULTATS -->
@@ -149,7 +185,6 @@
 
 <script>
 /* ============ HISTOIRES (sans apostrophes : contrainte reco vocale) ============ */
-/* target = vitesse du papillon Zip en mots/minute (progressif, adapté CE2) */
 const STORIES = [
   { emoji:'🍎', title:'Caramel le poney', target:40, best:0,
     text:"Léa arrive à la ferme ce matin. Son poney Caramel attend près de la barrière. Elle le brosse doucement et lui donne une pomme bien rouge. Caramel remue la queue car il est content. Ensuite, Léa pose la selle et met son casque pour la promenade." },
@@ -161,13 +196,15 @@ const STORIES = [
     text:"Cette nuit, une fée entre sans bruit dans la petite écurie. Elle touche la crinière de Caramel avec sa baguette magique. Le poney brille comme une étoile et des ailes dorées poussent sur son dos. Il vole très haut dans le ciel plein de nuages roses. Au matin, Léa trouve une plume dorée posée sur la paille." }
 ];
 const PACE_LABEL = t => t<=42 ? '🦋 lent' : t<=50 ? '🦋 moyen' : t<=58 ? '🦋 rapide' : '🦋 très rapide';
+const HURDLES = [25, 50, 75]; /* jalons % : haies que Caramel saute */
 
 /* ============ ÉTAT ============ */
-let currentIdx = 0, wordEls = [], recognition = null, raceTimer = null, audioCtx = null;
+let currentIdx = 0, wordEls = [], recognition = null, raceTimer = null,
+    audioCtx = null, wakeLock = null, noResultTimer = null;
 const state = { target:[], status:[], progress:0, startTime:null, running:false,
-                finalTranscript:'', streak:0, flyDone:false, childFinished:false };
+                finalTranscript:'', streak:0, flyDone:false, childFinished:false, gotAnyResult:false };
 
-/* ============ SONS (WebAudio, aucun fichier) ============ */
+/* ============ SONS ============ */
 function beep(freq, dur=0.08, gain=0.12){
   try{
     audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)();
@@ -179,6 +216,18 @@ function beep(freq, dur=0.08, gain=0.12){
   }catch(_){}
 }
 function fanfare(){ [523,659,784,1047].forEach((f,i)=>setTimeout(()=>beep(f,0.18,0.15), i*140)); }
+function confetti(){
+  const box = document.getElementById('confetti');
+  const em = ['🎉','⭐','✨','💛','🌸'];
+  for(let i=0;i<22;i++){
+    const s = document.createElement('span');
+    s.textContent = em[i % em.length];
+    s.style.left = Math.random()*100 + 'vw';
+    s.style.animationDelay = (Math.random()*0.7) + 's';
+    box.appendChild(s);
+    setTimeout(()=>s.remove(), 3600);
+  }
+}
 
 /* ============ NAVIGATION ============ */
 function show(id){
@@ -214,8 +263,8 @@ function openStory(i){
   stopAll();
   currentIdx = i;
   const s = STORIES[i];
-  Object.assign(state, { target:tokenize(s.text), progress:0, startTime:null,
-    running:false, finalTranscript:'', streak:0, flyDone:false, childFinished:false });
+  Object.assign(state, { target:tokenize(s.text), progress:0, startTime:null, running:false,
+    finalTranscript:'', streak:0, flyDone:false, childFinished:false, gotAnyResult:false });
   state.status = new Array(state.target.length).fill('pending');
 
   document.getElementById('read-title').textContent = s.emoji + ' ' + s.title + ' — bats Zip 🦋 !';
@@ -227,7 +276,18 @@ function openStory(i){
     disp.appendChild(sp); disp.appendChild(document.createTextNode(' '));
     return sp;
   });
-  renderText();
+
+  /* haies sur la piste */
+  document.querySelectorAll('.hurdle').forEach(h=>h.remove());
+  const track = document.querySelector('.track');
+  HURDLES.forEach(p=>{
+    const h = document.createElement('span');
+    h.className = 'hurdle'; h.textContent = '🌿';
+    h.style.left = (p*0.85) + '%';
+    track.appendChild(h);
+  });
+
+  renderText(); scrollToCurrent(false);
   moveActor('pony', 0); moveActor('fly', 0);
   document.getElementById('streak').textContent = '🔥 série : 0';
   document.getElementById('timer').textContent = '⏱ 0 s';
@@ -239,26 +299,47 @@ function openStory(i){
   show('screen-read');
 }
 function moveActor(id, pct){
-  document.getElementById(id).style.left = (Math.min(pct,100) * 0.85) + '%';
-  if(id==='pony'){
-    const sp = document.getElementById('spark');
-    sp.style.left = (Math.min(pct,100) * 0.85) + '%';
-  }
+  const left = (Math.min(pct,100) * 0.85) + '%';
+  document.getElementById(id).style.left = left;
+  if(id==='pony') document.getElementById('spark').style.left = left;
+}
+function scrollToCurrent(smooth=true){
+  const el = wordEls[Math.min(state.progress, wordEls.length-1)];
+  const box = document.getElementById('text-display');
+  if(!el || !box) return;
+  const target = el.offsetTop - box.clientHeight/2 + el.clientHeight/2;
+  if(smooth) box.scrollTo({top:target, behavior:'smooth'});
+  else box.scrollTop = target;
 }
 
 /* ============ RECONNAISSANCE VOCALE ============ */
 const ERR_MSG = {
-  'not-allowed': 'Micro refusé 😕 Autorise-le : icône 🔒 à côté de l\u2019adresse → Micro → Autoriser.',
-  'service-not-allowed': 'La reconnaissance est bloquée ici. Ouvre le lien directement dans Chrome (pas depuis une autre appli).',
+  'not-allowed': 'Micro refusé 😕 Icône 🔒 à côté de l\u2019adresse → Micro → Autoriser, puis recharge.',
+  'service-not-allowed': 'La reconnaissance est bloquée ici. Ouvre le lien directement dans Chrome.',
   'network': 'La reconnaissance a besoin d\u2019internet. Vérifie la connexion 📶',
   'audio-capture': 'Aucun micro détecté sur cet appareil 🎙️',
   'language-not-supported': 'Le français n\u2019est pas disponible sur ce navigateur.'
 };
-function micTap(){
+async function micTap(){
   if(state.running) return;
-  beep(660, 0.06); // initialise aussi l'audio sur le geste utilisateur
+  beep(660, 0.06);
+  const label = document.getElementById('mic-label');
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if(!SR){ showCompat(); show('screen-home'); return; }
+
+  /* Demande explicite du micro AVANT la reco : fiabilise Chrome Android */
+  if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
+    label.textContent = 'Je demande le micro... 🎙️';
+    try{
+      const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+      stream.getTracks().forEach(t=>t.stop());
+    }catch(err){
+      label.textContent = (err.name==='NotFoundError')
+        ? ERR_MSG['audio-capture']
+        : ERR_MSG['not-allowed'];
+      return;
+    }
+  }
 
   recognition = new SR();
   recognition.lang = 'fr-FR';
@@ -266,23 +347,24 @@ function micTap(){
   recognition.interimResults = true;
 
   recognition.onstart = ()=>{
-    document.getElementById('mic-label').textContent = 'Je t\u2019écoute... lis l\u2019histoire ! 🎧';
+    if(!state.gotAnyResult) label.textContent = 'Je t\u2019écoute... lis l\u2019histoire ! 🎧';
   };
   recognition.onresult = (e)=>{
+    state.gotAnyResult = true;
+    if(noResultTimer){ clearTimeout(noResultTimer); noResultTimer = null; }
     let interim = '';
     for(let i=e.resultIndex; i<e.results.length; i++){
       if(e.results[i].isFinal) state.finalTranscript += e.results[i][0].transcript + ' ';
       else interim += e.results[i][0].transcript + ' ';
     }
     const all = state.finalTranscript + ' ' + interim;
-    const tail = all.trim().split(/\s+/).slice(-6).join(' ');
+    const tail = all.trim().split(/\s+/).slice(-5).join(' ');
     document.getElementById('heard').textContent = tail ? '👂 ' + tail : '';
     processTranscript(all);
   };
   recognition.onerror = (e)=>{
     const msg = ERR_MSG[e.error];
-    if(msg){ document.getElementById('mic-label').textContent = msg; }
-    /* 'no-speech' et 'aborted' : silencieux, le redémarrage automatique gère */
+    if(msg) label.textContent = msg;
   };
   recognition.onend = ()=>{
     if(state.running){ setTimeout(()=>{ try{ recognition.start(); }catch(_){} }, 200); }
@@ -290,19 +372,28 @@ function micTap(){
 
   state.running = true;
   try{ recognition.start(); }
-  catch(err){ document.getElementById('mic-label').textContent = 'Impossible de démarrer le micro. Recharge la page.'; return; }
+  catch(err){ label.textContent = 'Impossible de démarrer. Recharge la page.'; state.running=false; return; }
+
   document.getElementById('btn-mic').classList.add('listening');
   document.getElementById('btn-quit').style.display = 'inline-block';
+
+  /* écran toujours allumé pendant la lecture */
+  try{ if(navigator.wakeLock) navigator.wakeLock.request('screen').then(w=>wakeLock=w); }catch(_){}
+
+  /* alerte si rien entendu après 6 s */
+  noResultTimer = setTimeout(()=>{
+    if(!state.gotAnyResult)
+      label.textContent = 'Je ne t\u2019entends pas 🤔 Parle plus fort, tout près du téléphone !';
+  }, 6000);
 
   raceTimer = setInterval(()=>{
     if(!state.startTime) return;
     const elapsed = (Date.now() - state.startTime) / 1000;
     document.getElementById('timer').textContent = '⏱ ' + Math.round(elapsed) + ' s';
-    /* Zip avance à la vitesse cible */
     const flyWords = (elapsed/60) * STORIES[currentIdx].target;
     const flyPct = 100 * flyWords / state.target.length;
     moveActor('fly', flyPct);
-    if(flyPct >= 100 && !state.flyDone){ state.flyDone = true; }
+    if(flyPct >= 100 && !state.flyDone) state.flyDone = true;
   }, 250);
 }
 function showCompat(){
@@ -334,19 +425,22 @@ function processTranscript(spoken){
   state.status = status; state.progress = ti;
   if(!state.startTime && ti>0) state.startTime = Date.now();
 
-  /* série de mots réussis consécutifs */
   let streak = 0;
   for(let k=ti-1; k>=0 && status[k]==='read'; k--) streak++;
   state.streak = streak;
   document.getElementById('streak').textContent = '🔥 série : ' + streak;
   document.getElementById('spark').style.display = streak >= 5 ? 'block' : 'none';
 
-  /* animations + sons */
   const pony = document.getElementById('pony');
   if(ti > prevProgress){
-    moveActor('pony', 100*ti/n);
-    pony.classList.remove('hop'); void pony.offsetWidth; pony.classList.add('hop');
-    beep(440 + Math.min(streak,10)*40, 0.05, 0.08);
+    const pctPrev = 100*prevProgress/n, pctNow = 100*ti/n;
+    moveActor('pony', pctNow);
+    const jumped = HURDLES.some(h => pctPrev < h && pctNow >= h);
+    pony.classList.remove('hop','hop-big'); void pony.offsetWidth;
+    pony.classList.add(jumped ? 'hop-big' : 'hop');
+    if(jumped){ beep(880, 0.16, 0.13); if(navigator.vibrate) navigator.vibrate(40); }
+    else beep(440 + Math.min(streak,10)*40, 0.05, 0.08);
+    scrollToCurrent();
   }
   const nowMissed = status.filter(s=>s==='missed').length;
   if(nowMissed > prevMissed){
@@ -391,7 +485,7 @@ function finishExercise(){
   const stars = (precision>=90 && beatFly) ? 3 : (precision>=75) ? 2 : 1;
 
   STORIES[currentIdx].best = Math.max(STORIES[currentIdx].best, stars);
-  if(stars === 3) fanfare(); else beep(784, 0.2, 0.12);
+  if(stars === 3){ fanfare(); confetti(); } else beep(784, 0.2, 0.12);
 
   document.getElementById('res-stars').textContent = '⭐'.repeat(stars) + '☆'.repeat(3-stars);
   document.getElementById('res-race').textContent = beatFly
@@ -399,7 +493,7 @@ function finishExercise(){
     : '🦋 Zip est arrivé le premier cette fois... revanche ?';
   document.getElementById('res-message').textContent =
     stars===3 ? '🎉 Course parfaite ! Caramel est super fier de toi !' :
-    stars===2 ? '💪 Très belle lecture ! Vise la victoire contre Zip pour la 3e étoile.' :
+    stars===2 ? '💪 Très belle lecture ! Bats Zip pour la 3e étoile.' :
                 '🌱 Bon début ! Relis cette histoire pour rattraper Zip.';
   document.getElementById('res-speed').textContent = 'Tu as lu ' + mclm + ' mots par minute ⏱️';
 
@@ -416,6 +510,8 @@ function stopAll(){
   state.running = false;
   if(recognition){ try{ recognition.stop(); }catch(_){} recognition = null; }
   if(raceTimer){ clearInterval(raceTimer); raceTimer = null; }
+  if(noResultTimer){ clearTimeout(noResultTimer); noResultTimer = null; }
+  if(wakeLock){ try{ wakeLock.release(); }catch(_){} wakeLock = null; }
   const mic = document.getElementById('btn-mic');
   if(mic) mic.classList.remove('listening');
 }
@@ -428,7 +524,7 @@ if(!(window.SpeechRecognition || window.webkitSpeechRecognition)){
 } else if(isIOS){
   const w = document.getElementById('compat-warn');
   w.style.display = 'block';
-  w.innerHTML = '📱 Sur iPhone/iPad, la reconnaissance vocale marche mal (elle ne suit pas les mots en direct).<br>Pour jouer vraiment, utilise <b>Chrome sur Android ou sur un ordinateur</b>.';
+  w.innerHTML = '📱 Sur iPhone/iPad, la reconnaissance vocale suit mal les mots en direct.<br>Préfère <b>Chrome sur Android ou sur un ordinateur</b>.';
 }
 renderHome();
 </script>
