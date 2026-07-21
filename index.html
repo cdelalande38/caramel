@@ -472,6 +472,26 @@ function tokenize(text){
   if(out.length) out[out.length-1].pause = false; /* dernier mot : rien à juger derrière */
   return out;
 }
+/* noms propres du texte (Léa...) : jamais vus en minuscule, majuscule en milieu de phrase ou répétés */
+function computeProper(tokens){
+  const capCount = {}, lowSeen = new Set(), midCap = new Set();
+  tokens.forEach((w, idx)=>{
+    const m = w.raw.match(/^[A-Za-zÀ-ÖØ-öø-ÿŒœ]+/);
+    if(!m) return;
+    if(/^[a-zà-öø-ÿœ]/.test(m[0])) lowSeen.add(w.norm);
+    else {
+      capCount[w.norm] = (capCount[w.norm]||0) + 1;
+      const sentStart = idx===0 || /[.!?…]\s*$/.test(tokens[idx-1].raw);
+      if(!sentStart) midCap.add(w.norm);
+    }
+  });
+  const set = new Set();
+  for(const nrm of Object.keys(capCount)){
+    if(lowSeen.has(nrm)) continue;
+    if(midCap.has(nrm) || capCount[nrm]>=2) set.add(nrm);
+  }
+  return set;
+}
 function median(arr){
   if(!arr.length) return 0;
   const s = [...arr].sort((a,b)=>a-b);
@@ -488,6 +508,7 @@ function openStory(i){
   state.status = new Array(state.target.length).fill('pending');
   state.wordTime = new Array(state.target.length).fill(null);
   state.pauseResults = new Array(state.target.length).fill(null);
+  state.proper = computeProper(state.target);
 
   document.getElementById('read-title').textContent = s.emoji + ' ' + s.title + ' — bats Zip 🦋 !';
   const disp = document.getElementById('text-display');
@@ -600,8 +621,17 @@ function processTranscript(spoken){
   for(const sw of spokenWords){
     if(ti >= n) break;
     let found = -1;
-    for(let k=ti; k<Math.min(ti+4,n); k++){
-      if(isMatch(sw, state.target[k].norm)){ found=k; break; }
+    if(sw === 'unk'){
+      /* [unk] = mot hors vocabulaire de la grammaire (souvent un prénom comme Léa) :
+         il ne peut valider qu'un nom propre attendu dans la fenêtre */
+      for(let k=ti; k<Math.min(ti+4,n); k++){
+        if(state.proper && state.proper.has(state.target[k].norm)){ found=k; break; }
+      }
+      if(found < 0) continue;
+    } else {
+      for(let k=ti; k<Math.min(ti+4,n); k++){
+        if(isMatch(sw, state.target[k].norm)){ found=k; break; }
+      }
     }
     if(found >= 0){
       for(let k=ti; k<found; k++) status[k]='missed';
@@ -662,7 +692,10 @@ function processTranscript(spoken){
 }
 function isMatch(a,b){
   if(a===b) return true;
-  return Math.min(a.length,b.length)>=4 && levenshtein(a,b)<=1;
+  const L = Math.min(a.length,b.length);
+  if(L>=3 && levenshtein(a,b)<=1) return true;
+  if(L>=7 && levenshtein(a,b)<=2) return true;
+  return false;
 }
 function levenshtein(a,b){
   const m=a.length, n=b.length;
