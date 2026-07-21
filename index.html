@@ -14,6 +14,8 @@
   }
   .screen { display:none; max-width:680px; margin:0 auto; padding:14px 12px 30px; }
   .screen.active { display:block; animation:pop .3s ease; }
+  #screen-read.active { display:flex; flex-direction:column; height:100vh; height:100dvh;
+                        overflow:hidden; padding-bottom:10px; }
   @keyframes pop { from{opacity:0; transform:scale(.97);} to{opacity:1; transform:scale(1);} }
 
   header { text-align:center; margin:10px 0 4px; }
@@ -35,11 +37,12 @@
   .story-card .pace { font-size:.85rem; color:#9d6b53; }
   .story-card .stars { font-size:1rem; letter-spacing:2px; }
 
-  .back { background:none; border:none; color:#b45309; font-size:1rem; cursor:pointer; margin-bottom:4px; }
-  .story-head { text-align:center; font-size:1.1rem; font-weight:700; margin:0 0 8px; color:#b45309; }
+  .back { background:none; border:none; color:#b45309; font-size:1rem; cursor:pointer;
+          margin-bottom:4px; text-align:left; flex:none; }
+  .story-head { text-align:center; font-size:1.1rem; font-weight:700; margin:0 0 8px; color:#b45309; flex:none; }
 
   .control-bar {
-    display:flex; align-items:center; gap:14px;
+    flex:none; display:flex; align-items:center; gap:14px;
     background:#fff; border-radius:20px; padding:10px 14px; margin-bottom:10px;
     box-shadow:0 4px 14px rgba(180,83,9,.10);
   }
@@ -58,7 +61,7 @@
            white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
   .track {
-    position:relative; height:118px; border-radius:20px; overflow:hidden;
+    flex:none; position:relative; height:122px; border-radius:20px; overflow:hidden;
     background:linear-gradient(180deg,#7dd3fc 0%,#bae6fd 48%,#86efac 48%,#4ade80 100%);
     box-shadow:inset 0 2px 8px rgba(0,0,0,.08); margin-bottom:6px;
   }
@@ -74,21 +77,21 @@
   @keyframes hop { 50%{ transform:translateY(-16px);} }
   @keyframes hopbig { 50%{ transform:translateY(-34px) rotate(-6deg);} }
   @keyframes stumble { 25%{transform:rotate(-12deg);} 75%{transform:rotate(10deg);} }
-  #fly { position:absolute; top:34px; left:0; font-size:1.6rem; transition:left .25s linear; z-index:2; }
+  #fly { position:absolute; top:36px; left:0; font-size:1.6rem; transition:left .25s linear; z-index:2; }
   .hurdle { position:absolute; bottom:8px; font-size:1.4rem; z-index:1; }
   .finish { position:absolute; right:4px; bottom:8px; font-size:2.1rem; }
-  #spark { position:absolute; bottom:52px; font-size:1.2rem; display:none; z-index:3; }
+  #spark { position:absolute; bottom:54px; font-size:1.2rem; display:none; z-index:3; }
 
-  .race-info { display:flex; justify-content:space-between; align-items:center; gap:8px;
+  .race-info { flex:none; display:flex; justify-content:space-between; align-items:center; gap:8px;
                font-size:.95rem; color:#9d6b53; font-weight:700; margin-bottom:8px; padding:0 4px; }
   .quit { background:none; border:none; color:#b98a6f; font-size:.9rem; cursor:pointer; text-decoration:underline; }
 
   #text-display {
-    position:relative;
+    position:relative; flex:1; min-height:0;
     background:#fff; border-radius:22px; padding:26px 20px;
     font-size:1.9rem; line-height:2.5; color:#3f2d20;
     box-shadow:0 6px 18px rgba(180,83,9,.12);
-    max-height:44vh; overflow-y:auto;
+    overflow-y:auto;
   }
   .word { padding:2px 6px; border-radius:10px; opacity:.5; display:inline-block;
           transition:opacity .2s, transform .2s, background .2s; }
@@ -99,12 +102,15 @@
     box-shadow:0 0 0 3px #f59e0b; animation:pulse 1.2s infinite; font-weight:700;
   }
   @keyframes pulse { 0%,100%{box-shadow:0 0 0 3px #f59e0b;} 50%{box-shadow:0 0 0 7px #f59e0b55;} }
+  .word.pause-ok::after   { content:'⏸'; font-size:.5em; color:#16a34a; margin-left:3px; vertical-align:super; }
+  .word.pause-fast::after { content:'⏸'; font-size:.5em; color:#ea580c; margin-left:3px; vertical-align:super; opacity:.85; }
 
   .results-box { background:#fff; border-radius:22px; padding:26px 18px; text-align:center;
                  box-shadow:0 6px 18px rgba(180,83,9,.12); }
   .big-stars { font-size:3.4rem; letter-spacing:6px; margin:4px 0 12px; animation:pop .4s ease; }
   #res-message { font-size:1.2rem; font-weight:700; color:#5b3a29; margin-bottom:8px; }
   #res-race { font-size:1.05rem; color:#7c5843; margin-bottom:8px; }
+  #res-pauses { font-size:1rem; color:#7c5843; margin-bottom:8px; }
   #res-speed { font-size:.92rem; color:#9d6b53; }
   #missed-words { margin-top:12px; font-size:1.02rem; color:#7c2d12; }
   .btn {
@@ -119,6 +125,23 @@
   #confetti { position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:50; }
   #confetti span { position:absolute; top:-10%; font-size:1.6rem; animation:fall 2.6s ease-in forwards; }
   @keyframes fall { to { transform:translateY(115vh) rotate(360deg); } }
+
+  /* ===== Grand écran : piste XXL + texte pleine hauteur ===== */
+  @media (min-width: 900px){
+    .screen { max-width:1100px; }
+    .track { height:190px; }
+    #pony { font-size:4.4rem; }
+    #fly { font-size:2.7rem; top:60px; }
+    .finish { font-size:3.4rem; }
+    .hurdle { font-size:2.5rem; }
+    .sun { font-size:2.4rem; }
+    .cloud { font-size:2rem; }
+    #spark { bottom:92px; font-size:2rem; }
+    #btn-mic { width:86px; height:86px; font-size:2.4rem; }
+    .mic-label { font-size:1.15rem; }
+    #heard { font-size:1rem; }
+    #text-display { font-size:2.25rem; padding:34px 40px; }
+  }
 </style>
 </head>
 <body>
@@ -171,6 +194,7 @@
     <div class="big-stars" id="res-stars"></div>
     <p id="res-message"></p>
     <p id="res-race"></p>
+    <p id="res-pauses"></p>
     <p id="res-speed"></p>
     <p id="missed-words"></p>
   </div>
@@ -182,29 +206,40 @@
 </div>
 
 <script>
-/* ============ HISTOIRES (sans apostrophes : contrainte reco vocale) ============ */
+/* ============ HISTOIRES (sans apostrophes ni traits d'union : contrainte reco vocale) ============ */
 const STORIES = [
   { emoji:'🍎', title:'Caramel le poney', target:40, best:0,
     text:"Léa arrive à la ferme ce matin. Son poney Caramel attend près de la barrière. Elle le brosse doucement et lui donne une pomme bien rouge. Caramel remue la queue car il est content. Ensuite, Léa pose la selle et met son casque pour la promenade." },
-  { emoji:'🌳', title:'Promenade en forêt', target:48, best:0,
+  { emoji:'🌳', title:'Promenade en forêt', target:45, best:0,
     text:"Ce matin, Léa monte sur Caramel pour une balade dans la forêt. Les oiseaux chantent et les feuilles dansent avec le vent. Le poney trotte sur le petit chemin plein de fleurs. Soudain, un lapin gris traverse devant eux. Caramel reste très calme et Léa le félicite avec une caresse." },
-  { emoji:'🏆', title:'Le grand concours', target:56, best:0,
+  { emoji:'🏖️', title:'Caramel à la plage', target:50, best:0,
+    text:"Cet été, Léa emmène Caramel voir la mer pour la première fois. Le poney pose un sabot sur le sable chaud, puis il recule, tout surpris. Une vague douce vient chatouiller ses jambes. Léa rit très fort. Ensemble, ils galopent le long de la plage, et le vent salé décoiffe la crinière de Caramel." },
+  { emoji:'🏆', title:'Le grand concours', target:54, best:0,
     text:"Dimanche, le grand jour arrive enfin : le concours du club. Léa respire un grand coup, elle a un peu peur. Caramel avance vers le premier obstacle et saute très haut. Le public applaudit fort. À la fin du parcours, Léa reçoit un joli ruban bleu. Elle serre son poney dans ses bras car ils forment une belle équipe." },
-  { emoji:'🧚', title:'La fée des chevaux', target:64, best:0,
-    text:"Cette nuit, une fée entre sans bruit dans la petite écurie. Elle touche la crinière de Caramel avec sa baguette magique. Le poney brille comme une étoile et des ailes dorées poussent sur son dos. Il vole très haut dans le ciel plein de nuages roses. Au matin, Léa trouve une plume dorée posée sur la paille." }
+  { emoji:'🗺️', title:'Le trésor du poney pirate', target:58, best:0,
+    text:"Un matin, Léa trouve une vieille carte au fond de la grange. Elle montre un trésor caché près du grand chêne. Caramel porte un foulard rouge, comme un vrai pirate. Ils suivent le chemin, passent le pont de bois et comptent dix pas. Sous la terre, ils découvrent un coffre rempli de pommes dorées !" },
+  { emoji:'❄️', title:'La neige magique', target:62, best:0,
+    text:"Ce matin, la ferme est toute blanche. La neige tombe doucement du ciel gris. Caramel souffle des petits nuages de vapeur avec son nez. Léa lance une boule de neige, et le poney saute pour la toucher du bout du museau. Ensuite, ils dessinent des traces rigolotes dans la poudre blanche, puis ils rentrent bien au chaud." },
+  { emoji:'🧚', title:'La fée des chevaux', target:66, best:0,
+    text:"Cette nuit, une fée entre sans bruit dans la petite écurie. Elle touche la crinière de Caramel avec sa baguette magique. Le poney brille comme une étoile et des ailes dorées poussent sur son dos. Il vole très haut dans le ciel plein de nuages roses. Au matin, Léa trouve une plume dorée posée sur la paille." },
+  { emoji:'🐉', title:'Le dragon gentil', target:70, best:0,
+    text:"Au fond de la forêt vit un petit dragon vert nommé Pistache. Il est triste car tout le monde a peur de lui. Caramel avance doucement et lui offre une pomme. Le dragon sourit, et une petite flamme de joie sort de son nez. Depuis ce jour, Pistache garde la ferme la nuit, et il réchauffe la paille en hiver." },
+  { emoji:'🌠', title:'La nuit des étoiles', target:74, best:0,
+    text:"Ce soir, Léa installe une grande couverture dans le pré, tout près de Caramel. Le ciel est rempli de milliers de points brillants. Soudain, une étoile filante traverse la nuit comme une flèche de lumière. Léa ferme les yeux et fait un vœu secret. Le poney pose sa tête douce contre son épaule. Ensemble, ils comptent les étoiles très tard dans la nuit." }
 ];
-const PACE_LABEL = t => t<=42 ? '🦋 lent' : t<=50 ? '🦋 moyen' : t<=58 ? '🦋 rapide' : '🦋 très rapide';
+const PACE_LABEL = t => t<=46 ? '🦋 lent' : t<=56 ? '🦋 moyen' : t<=66 ? '🦋 rapide' : '🦋 très rapide';
 const HURDLES = [25, 50, 75];
 
 /* ============ ÉTAT ============ */
 let currentIdx = 0, wordEls = [], raceTimer = null,
     audioCtx = null, wakeLock = null, noResultTimer = null;
 const state = { target:[], status:[], progress:0, startTime:null, running:false,
-                finalTranscript:'', streak:0, flyDone:false, childFinished:false, gotAnyResult:false };
+                finalTranscript:'', streak:0, flyDone:false, childFinished:false, gotAnyResult:false,
+                wordTime:[], gaps:[], pauseResults:[] };
 
 /* ============ MOTEUR VOCAL : Vosk intégré + secours Google ============ */
 const VOSK_LIB = 'https://cdn.jsdelivr.net/npm/vosk-browser@0.0.8/dist/vosk.js';
-const MODEL_URL = 'models/fr.tar.gz'; /* auto-hébergé, même origine */
+const MODEL_URL = 'models/fr.tar.gz';
 let voskModel = null, voskPromise = null, engine = null, webRecognition = null;
 const audio = { ctx:null, stream:null, source:null, node:null, gain:null, recognizer:null };
 
@@ -253,8 +288,7 @@ function ensureVosk(){
       setVoiceStatus('🎙 Moteur vocal : chargement...');
       await loadScript(VOSK_LIB);
       const blob = await getModelBlob(p=>{
-        const t = '🎙 Moteur vocal : téléchargement ' + p + ' % (1re fois seulement)';
-        setVoiceStatus(t);
+        setVoiceStatus('🎙 Moteur vocal : téléchargement ' + p + ' % (1re fois seulement)');
         const l = document.getElementById('mic-label');
         if(l && !state.running) l.textContent = 'Téléchargement du moteur : ' + p + ' %';
       });
@@ -302,7 +336,7 @@ async function startVoskEngine(){
     try{ audio.recognizer.acceptWaveform(e.inputBuffer); }catch(_){}
   };
   audio.gain = audio.ctx.createGain();
-  audio.gain.gain.value = 0; /* évite le retour micro dans les enceintes */
+  audio.gain.gain.value = 0;
   audio.source.connect(audio.node);
   audio.node.connect(audio.gain);
   audio.gain.connect(audio.ctx.destination);
@@ -355,7 +389,6 @@ function stopWebSpeech(){
   if(webRecognition){ try{ webRecognition.stop(); }catch(_){} webRecognition = null; }
 }
 
-/* entonnoir commun : tout ce qui est entendu passe ici */
 function ingest(allText){
   state.gotAnyResult = true;
   if(noResultTimer){ clearTimeout(noResultTimer); noResultTimer = null; }
@@ -416,17 +449,37 @@ function normalize(w){
   return w.toLowerCase().normalize('NFD')
     .replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');
 }
+/* tokens : mot + drapeau "pause" si ponctuation (y compris ponctuation détachée « ! » « : ») */
 function tokenize(text){
-  return text.split(/\s+/).map(raw=>({raw, norm:normalize(raw)})).filter(w=>w.norm.length>0);
+  const parts = text.split(/\s+/).filter(Boolean);
+  const out = [];
+  for(const raw of parts){
+    const norm = normalize(raw);
+    if(!norm){
+      if(out.length){ out[out.length-1].raw += ' ' + raw; out[out.length-1].pause = true; }
+      continue;
+    }
+    out.push({ raw, norm, pause: /[,;:.!?…»]$/.test(raw) });
+  }
+  if(out.length) out[out.length-1].pause = false; /* dernier mot : rien à juger derrière */
+  return out;
+}
+function median(arr){
+  if(!arr.length) return 0;
+  const s = [...arr].sort((a,b)=>a-b);
+  return s[Math.floor(s.length/2)];
 }
 function openStory(i){
   stopAll();
-  ensureVosk(); /* précharge le moteur en arrière-plan */
+  ensureVosk();
   currentIdx = i;
   const s = STORIES[i];
   Object.assign(state, { target:tokenize(s.text), progress:0, startTime:null, running:false,
-    finalTranscript:'', streak:0, flyDone:false, childFinished:false, gotAnyResult:false });
+    finalTranscript:'', streak:0, flyDone:false, childFinished:false, gotAnyResult:false,
+    wordTime:[], gaps:[], pauseResults:[] });
   state.status = new Array(state.target.length).fill('pending');
+  state.wordTime = new Array(state.target.length).fill(null);
+  state.pauseResults = new Array(state.target.length).fill(null);
 
   document.getElementById('read-title').textContent = s.emoji + ' ' + s.title + ' — bats Zip 🦋 !';
   const disp = document.getElementById('text-display');
@@ -553,6 +606,24 @@ function processTranscript(spoken){
   state.status = status; state.progress = ti;
   if(!state.startTime && ti>0) state.startTime = Date.now();
 
+  /* --- horodatage des mots validés + pauses de ponctuation --- */
+  const now = Date.now();
+  for(let k=prevProgress; k<ti; k++) state.wordTime[k] = now;
+  for(let k=Math.max(1,prevProgress); k<ti; k++){
+    const g = state.wordTime[k] - (state.wordTime[k-1] || state.wordTime[k]);
+    if(g>120 && g<4000 && !state.target[k-1].pause) state.gaps.push(g);
+  }
+  if(state.gaps.length>40) state.gaps.splice(0, state.gaps.length-40);
+  for(let k=0; k<ti-1; k++){
+    if(!state.target[k].pause || state.pauseResults[k]!==null) continue;
+    if(state.wordTime[k]==null || state.wordTime[k+1]==null) continue;
+    if(state.status[k]!=='read'){ state.pauseResults[k]='skip'; continue; }
+    const gap = state.wordTime[k+1] - state.wordTime[k];
+    const base = median(state.gaps);
+    const need = Math.min(Math.max(base ? base+280 : 800, 550), 2000);
+    state.pauseResults[k] = gap >= need ? 'ok' : 'fast';
+  }
+
   let streak = 0;
   for(let k=ti-1; k>=0 && status[k]==='read'; k--) streak++;
   state.streak = streak;
@@ -595,8 +666,11 @@ function levenshtein(a,b){
 }
 function renderText(){
   state.target.forEach((_,i)=>{
-    wordEls[i].className = 'word ' + state.status[i] +
-      (i===state.progress && state.running ? ' current' : '');
+    let cls = 'word ' + state.status[i];
+    if(i===state.progress && state.running) cls += ' current';
+    if(state.pauseResults[i]==='ok') cls += ' pause-ok';
+    else if(state.pauseResults[i]==='fast') cls += ' pause-fast';
+    wordEls[i].className = cls;
   });
 }
 
@@ -623,6 +697,17 @@ function finishExercise(){
     stars===3 ? '🎉 Course parfaite ! Caramel est super fier de toi !' :
     stars===2 ? '💪 Très belle lecture ! Bats Zip pour la 3e étoile.' :
                 '🌱 Bon début ! Relis cette histoire pour rattraper Zip.';
+
+  const evald = state.pauseResults.filter(r=>r==='ok'||r==='fast').length;
+  const okp = state.pauseResults.filter(r=>r==='ok').length;
+  let ptxt = '';
+  if(evald >= 2){
+    ptxt = '⏸ Pauses à la ponctuation : ' + okp + ' / ' + evald;
+    if(okp/evald >= 0.8 && evald >= 3) ptxt += ' — 🎭 Lecture expressive !';
+    else if(okp/evald < 0.4) ptxt += ' — pense à respirer aux virgules et aux points 😊';
+  }
+  document.getElementById('res-pauses').textContent = ptxt;
+
   document.getElementById('res-speed').textContent = 'Tu as lu ' + mclm + ' mots par minute ⏱️';
 
   const missed = state.target.filter((_,i)=>state.status[i]!=='read').map(w=>w.raw);
