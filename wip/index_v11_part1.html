@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#fbcfe8">
+<title>La course de Caramel 🐴</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { font-family:'Segoe UI Rounded','Comic Sans MS','Segoe UI',Verdana,sans-serif;
+    min-height:100vh; color:#5b3a29;
+    background:linear-gradient(180deg,#fff1f5 0%,#fef3e2 60%,#fdeef7 100%); }
+  .screen { display:none; max-width:680px; margin:0 auto; padding:14px 12px 30px; }
+  .screen.active { display:block; animation:pop .3s ease; }
+  #screen-read.active { display:flex; flex-direction:column; height:100vh; height:100dvh;
+                        overflow:hidden; padding-bottom:10px; }
+  @keyframes pop { from{opacity:0; transform:scale(.97);} to{opacity:1; transform:scale(1);} }
+  header { text-align:center; margin:8px 0 2px; }
+  h1 { font-size:1.6rem; color:#b45309; }
+  #engine-status { text-align:center; font-size:.8rem; color:#b9a394; margin-bottom:4px; min-height:1.1em; }
+  #wallet { text-align:center; font-size:1.1rem; margin-bottom:10px; color:#b45309; font-weight:700; }
+
+  .pet-card { background:#fff; border:3px solid #fbcfe8; border-radius:24px; padding:12px 14px 14px;
+              margin-bottom:14px; box-shadow:0 4px 14px rgba(180,83,9,.08); overflow:hidden; }
+  #pet-stage { position:relative; height:150px; border-radius:18px; overflow:hidden; cursor:pointer;
+               background:linear-gradient(180deg,#bae6fd 0%,#e0f2fe 55%,#86efac 55%,#4ade80 100%); }
+  #pet-holder { position:absolute; left:50%; bottom:4px; transform:translateX(-50%); line-height:0; }
+  #pet-holder.walking { animation:walkmove 4s ease-in-out; }
+  @keyframes walkmove { 0%{transform:translateX(-50%);} 25%{transform:translateX(-115%);} 75%{transform:translateX(15%);} 100%{transform:translateX(-50%);} }
+  #pet-stage .heart { position:absolute; font-size:1.2rem; animation:heartup 1.2s ease-out forwards; pointer-events:none; z-index:5; }
+  @keyframes heartup { from{opacity:1; transform:translateY(0);} to{opacity:0; transform:translateY(-56px);} }
+  .pet-sun { position:absolute; top:6px; right:10px; font-size:1.3rem; }
+  .pet-cloud { position:absolute; top:8px; font-size:1.1rem; animation:drift 46s linear infinite; }
+  #pet-mood { text-align:center; font-size:.95rem; color:#7c5843; margin:8px 0 6px; min-height:1.3em; font-weight:700; }
+  .gauges { display:flex; gap:8px; margin-bottom:10px; }
+  .gauge { flex:1; }
+  .gauge .glbl { font-size:.75rem; color:#9d6b53; margin-bottom:3px; text-align:center; }
+  .gbar { height:12px; border-radius:8px; background:#fdf2f8; border:2px solid #fbcfe8; overflow:hidden; }
+  .gfill { height:100%; border-radius:6px; transition:width .5s; }
+  .g-faim .gfill { background:#fb923c; } .g-forme .gfill { background:#4ade80; } .g-joie .gfill { background:#f472b6; }
+  .pet-actions { display:flex; gap:6px; flex-wrap:wrap; justify-content:center; }
+  .pact { flex:1 1 21%; min-width:74px; border-radius:14px; padding:9px 4px; cursor:pointer;
+          background:#fdf2f8; border:2px solid #fbcfe8; color:#9d174d; font-weight:700; font-size:.85rem; }
+  .pact:active { transform:scale(.96); }
+  .panel { display:none; background:#fff7ed; border:2px dashed #fdba74; border-radius:16px;
+           padding:12px; margin-top:10px; }
+  .panel.open { display:block; animation:pop .25s ease; }
+  .panel h3 { font-size:.95rem; color:#b45309; margin-bottom:8px; }
+  .shop-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(102px,1fr)); gap:8px; }
+  .shop-item { background:#fff; border:2px solid #fbcfe8; border-radius:14px; padding:8px 6px;
+               text-align:center; cursor:pointer; font-size:.8rem; color:#7c5843; }
+  .shop-item .se { font-size:1.6rem; display:block; }
+  .shop-item .sp { color:#b45309; font-weight:700; }
+  .shop-item.owned { border-color:#86efac; }
+  .shop-item.worn { border-color:#f59e0b; background:#fef9c3; }
+  .set-row { display:flex; align-items:center; gap:8px; margin-bottom:10px; flex-wrap:wrap; font-size:.92rem; }
+  .set-row label { min-width:130px; color:#7c5843; font-weight:700; }
+  .set-row input[type=text] { flex:1; min-width:120px; padding:9px 12px; border-radius:12px;
+        border:2px solid #fbcfe8; font-size:1rem; font-family:inherit; color:#5b3a29; }
+  .seg { display:flex; gap:6px; }
+  .seg button { padding:8px 14px; border-radius:999px; border:2px solid #fbcfe8; background:#fff;
+                cursor:pointer; font-weight:700; color:#9d6b53; font-size:.88rem; }
+  .seg button.on { background:#fce7f3; border-color:#f472b6; color:#9d174d; }
+
+  .notif-card { display:none; align-items:center; gap:10px; flex-wrap:wrap;
+    background:#fff; border:3px solid #fde68a; border-radius:18px;
+    padding:12px 16px; margin:0 0 14px; font-size:.95rem; color:#7c5843; }
+  .btn-mini { padding:9px 18px; border-radius:999px; border:none; cursor:pointer;
+              background:#fbbf24; color:#78350f; font-weight:700; font-size:.9rem; }
+  .btn-mini.ghost { background:none; color:#b98a6f; text-decoration:underline; }
+
+  .level-title { font-size:.95rem; font-weight:800; color:#b45309; margin:20px 4px 10px;
+                 text-transform:uppercase; letter-spacing:.6px; }
+  .story-card { display:flex; align-items:center; gap:12px;
+    background:#fff; border:3px solid #fbcfe8; border-radius:22px;
+    padding:14px 16px; margin-bottom:12px; cursor:pointer;
+    box-shadow:0 4px 14px rgba(180,83,9,.08); transition:transform .12s; }
+  .story-card:active { transform:scale(.98); }
+  .story-card.locked { filter:grayscale(1); opacity:.55; cursor:default; }
+  .story-card.locked:active { transform:none; }
+  .story-card .emoji { font-size:2.2rem; }
+  .story-card .mid { flex:1; }
+  .story-card .title { font-size:1.12rem; font-weight:700; }
+  .story-card .pace { font-size:.85rem; color:#9d6b53; }
+  .story-card .unlock-note { font-size:.85rem; color:#9d6b53; }
+  .story-card .stars { font-size:1rem; letter-spacing:2px; }
+  .story-card .lock { font-size:1.5rem; }
+  #reset-progress { display:block; margin:26px auto 0; background:none; border:none;
+                    color:#c4a189; text-decoration:underline; font-size:.85rem; cursor:pointer; }
+  .foot { margin-top:28px; text-align:center; font-size:.88rem; color:#b98a6f; line-height:1.9; }
+  .foot a { color:#b45309; font-weight:700; }
+  .back { background:none; border:none; color:#b45309; font-size:1rem; cursor:pointer;
+          margin-bottom:4px; text-align:left; flex:none; }
+  .story-head { text-align:center; font-size:1.1rem; font-weight:700; margin:0 0 8px; color:#b45309; flex:none; }
+
+  .control-bar { flex:none; display:flex; align-items:center; gap:14px;
+    background:#fff; border-radius:20px; padding:10px 14px; margin-bottom:10px;
+    box-shadow:0 4px 14px rgba(180,83,9,.10); }
+  #btn-mic { flex:none; width:72px; height:72px; border-radius:50%; border:none; cursor:pointer;
+    font-size:2rem; color:#fff; background:linear-gradient(145deg,#f472b6,#c084fc);
+    box-shadow:0 6px 16px rgba(196,132,252,.45); transition:transform .12s; }
+  #btn-mic:active { transform:scale(.94); }
+  #btn-mic.listening { animation:micpulse 1.3s infinite; }
+  @keyframes micpulse { 0%,100%{box-shadow:0 6px 16px rgba(196,132,252,.45);} 50%{box-shadow:0 0 0 14px rgba(244,114,182,.22);} }
+  .control-txt { flex:1; min-width:0; }
+  .mic-label { font-size:1rem; font-weight:700; color:#9d6b53; }
+  #heard { font-size:.88rem; color:#b9a394; font-style:italic; min-height:1.2em; margin-top:2px;
+           white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+  .track { flex:none; position:relative; height:122px; border-radius:20px; overflow:hidden;
+    background:linear-gradient(180deg,#7dd3fc 0%,#bae6fd 46%,#86efac 46%,#4ade80 100%);
+    box-shadow:inset 0 2px 8px rgba(0,0,0,.08); margin-bottom:6px; }
+  .deco { position:absolute; z-index:1; }
+  .deco.drifting { animation:drift linear infinite; }
+  @keyframes drift { from{ left:-12%; } to{ left:104%; } }
+  #pony { position:absolute; bottom:6px; left:0; transition:left .35s ease; z-index:3; line-height:0; }
+  #pony.hop { animation:hop .3s ease; }
+  #pony.hop-big { animation:hopbig .5s ease; }
+  #pony.stumble { animation:stumble .5s ease; }
+  @keyframes hop { 50%{ transform:translateY(-16px);} }
+  @keyframes hopbig { 45%{ transform:translateY(-38px) rotate(-8deg);} }
+  @keyframes stumble { 25%{transform:rotate(-16deg) translateY(4px);} 60%{transform:rotate(12deg);} }
+  #fly { position:absolute; top:36px; left:0; font-size:1.6rem; transition:left .25s linear; z-index:2; }
+  .hurdle { position:absolute; bottom:8px; font-size:1.35rem; z-index:1;
+            transition:transform .3s, opacity .3s; }
+  .hurdle.jumped { animation:leafpop .5s ease; }
+  @keyframes leafpop { 50%{ transform:translateY(-16px) scale(1.35);} }
+  .hurdle.crushed { opacity:.4; transform:rotate(75deg) translateY(4px); }
+  .finish { position:absolute; right:4px; bottom:8px; font-size:2.1rem; z-index:2; }
+  #spark { position:absolute; bottom:54px; font-size:1.2rem; display:none; z-index:3; }
+
+  .m-root .m-body { animation:breathe 3.2s ease-in-out infinite; transform-origin:center; }
+  @keyframes breathe { 0%,100%{transform:scaleY(1);} 50%{transform:scaleY(1.035) translateY(-1px);} }
+  .m-root .m-tail { animation:swish 2.6s ease-in-out infinite; transform-origin:90% 20%; }
+  @keyframes swish { 0%,100%{transform:rotate(0);} 50%{transform:rotate(12deg);} }
+  .m-root .m-lid { animation:blink 4.5s infinite; transform-origin:center; transform:scaleY(0); }
+  @keyframes blink { 0%,94%,100%{transform:scaleY(0);} 96%,98%{transform:scaleY(1);} }
+  .m-root.sad .m-ear { transform:rotate(30deg); transform-origin:30% 100%; }
+  .m-root.sad .m-tail { animation-duration:5.5s; }
+  .m-root.joy { animation:joyb .5s ease 2; }
+  @keyframes joyb { 40%{ transform:translateY(-12px);} }
+  .m-root.walk .m-legF { animation:step .5s ease-in-out infinite; transform-origin:top center; }
+  .m-root.walk .m-legB { animation:step .5s ease-in-out infinite reverse; transform-origin:top center; }
+  @keyframes step { 0%,100%{transform:rotate(-13deg);} 50%{transform:rotate(13deg);} }
+
+  .race-info { flex:none; display:flex; justify-content:space-between; align-items:center; gap:8px;
+               font-size:.95rem; color:#9d6b53; font-weight:700; margin-bottom:8px; padding:0 4px; }
+  .quit { background:none; border:none; color:#b98a6f; font-size:.9rem; cursor:pointer; text-decoration:underline; }
+
+  #text-display { position:relative; flex:1; min-height:0;
+    background:#fff; border-radius:22px; padding:26px 20px;
+    font-size:1.9rem; line-height:2.5; color:#3f2d20;
+    box-shadow:0 6px 18px rgba(180,83,9,.12); overflow-y:auto; }
+  .word { padding:2px 6px; border-radius:10px; opacity:.5; display:inline-block;
+          transition:opacity .2s, transform .2s, background .2s; }
+  .word.read   { opacity:1; background:#bbf7d0; color:#14532d; }
+  .word.missed { opacity:1; background:#fed7aa; color:#7c2d12; }
+  .word.current { opacity:1; background:#fde68a; transform:scale(1.18);
+    box-shadow:0 0 0 3px #f59e0b; animation:pulse 1.2s infinite; font-weight:700; }
+  @keyframes pulse { 0%,100%{box-shadow:0 0 0 3px #f59e0b;} 50%{box-shadow:0 0 0 7px #f59e0b55;} }
+  .word.pause-ok::after   { content:'⏸'; font-size:.5em; color:#16a34a; margin-left:3px; vertical-align:super; }
+  .word.pause-fast::after { content:'⏸'; font-size:.5em; color:#ea580c; margin-left:3px; vertical-align:super; opacity:.85; }
+
+  .results-box { background:#fff; border-radius:26px; padding:34px 22px; text-align:center;
+                 box-shadow:0 6px 18px rgba(180,83,9,.12); }
+  .big-stars { font-size:4.6rem; letter-spacing:8px; margin:4px 0 14px; animation:pop .4s ease; }
+  #res-message { font-size:1.45rem; font-weight:800; color:#5b3a29; margin-bottom:10px; }
+  #res-race { font-size:1.15rem; color:#7c5843; margin-bottom:6px; }
+  #res-apples { font-size:1.3rem; color:#c2410c; font-weight:800; margin:6px 0; }
+  .stat-grid { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin:18px 0 8px; }
+  .rstat { background:#fdf2f8; border:2px solid #fbcfe8; border-radius:18px;
+           padding:14px 18px; min-width:108px; flex:1 1 108px; max-width:160px; }
+  .rval { font-size:2.3rem; font-weight:800; color:#b45309; line-height:1.1; }
+  .rlbl { font-size:.85rem; color:#9d6b53; margin-top:4px; }
+  #res-pauses { font-size:1.08rem; color:#7c5843; margin-top:6px; min-height:1.3em; }
+  #res-unlock { font-size:1.15rem; color:#9d174d; font-weight:800; margin-top:10px; }
+  #missed-words { margin-top:14px; font-size:1.15rem; color:#7c2d12; }
+  .btn { display:inline-block; border:none; cursor:pointer; margin:8px 4px 0;
+    padding:14px 26px; border-radius:999px; font-size:1.1rem; font-weight:700;
+    background:#fbbf24; color:#78350f; box-shadow:0 4px 10px rgba(180,83,9,.25); }
+  .btn.secondary { background:#fce7f3; color:#9d174d; }
+  .warn { background:#fee2e2; color:#7f1d1d; padding:12px 16px; border-radius:14px;
+          margin-top:14px; text-align:center; display:none; font-size:.98rem; }
+  #confetti { position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:50; }
+  #confetti span { position:absolute; top:-10%; font-size:1.6rem; animation:fall 2.6s ease-in forwards; }
+  @keyframes fall { to { transform:translateY(115vh) rotate(360deg); } }
+  @media (min-width: 900px){
+    .screen { max-width:1100px; }
+    #pet-stage { height:210px; }
+    .track { height:190px; }
+    #fly { font-size:2.7rem; top:60px; }
+    .finish { font-size:3.4rem; }
+    .hurdle { font-size:2.2rem; }
+    #spark { bottom:92px; font-size:2rem; }
+    #btn-mic { width:86px; height:86px; font-size:2.4rem; }
+    .mic-label { font-size:1.15rem; }
+    #heard { font-size:1rem; }
+    #text-display { font-size:2.25rem; padding:34px 40px; }
+    .big-stars { font-size:5.6rem; }
+    #res-message { font-size:1.75rem; }
+    .rval { font-size:2.9rem; }
+  }
+</style>
+</head>
+<body>
+<div id="confetti"></div>
+
+<div id="screen-home" class="screen active">
+  <header><h1 id="app-title">🐴 La course de Caramel</h1></header>
+  <p id="engine-status"></p>
+  <p id="wallet">⭐ 0 · 🍎 0 · 🔥 0 j</p>
+
+  <div class="pet-card">
+    <div id="pet-stage" onclick="petTap(event)">
+      <span class="pet-sun">☀️</span><span class="pet-cloud">☁️</span>
+      <div id="pet-holder"></div>
+    </div>
+    <p id="pet-mood"></p>
+    <div class="gauges">
+      <div class="gauge g-faim"><div class="glbl">🍎 Faim</div><div class="gbar"><div class="gfill" id="g-faim"></div></div></div>
+      <div class="gauge g-forme"><div class="glbl">🎾 Forme</div><div class="gbar"><div class="gfill" id="g-forme"></div></div></div>
+      <div class="gauge g-joie"><div class="glbl">💛 Joie</div><div class="gbar"><div class="gfill" id="g-joie"></div></div></div>
+    </div>
+    <div class="pet-actions">
+      <button class="pact" onclick="togglePanel('panel-food')">🥕 Nourrir</button>
+      <button class="pact" onclick="brushPet()">🪮 Brosser</button>
+      <button class="pact" onclick="walkPet()">🚶 Promener</button>
+      <button class="pact" onclick="togglePanel('panel-shop')">🛍️ Boutique</button>
+      <button class="pact" onclick="togglePanel('panel-settings')">⚙️ Réglages</button>
+    </div>
+    <div class="panel" id="panel-food">
+      <h3>🥕 Le garde-manger</h3>
+      <div class="shop-grid" id="food-grid"></div>
+    </div>
+    <div class="panel" id="panel-shop">
+      <h3>🛍️ La boutique — habille ton compagnon !</h3>
+      <div class="shop-grid" id="shop-grid"></div>
+      <h3 style="margin-top:10px">🐎 Montures</h3>
+      <div class="shop-grid" id="mount-grid"></div>
+    </div>
+    <div class="panel" id="panel-settings">
+      <h3>⚙️ Réglages</h3>
+      <div class="set-row"><label>Prénom du héros</label>
+        <input type="text" id="set-hero" maxlength="14"></div>
+      <div class="set-row"><label>Le héros est</label>
+        <span class="seg"><button id="seg-f" onclick="setGender('f')">une fille</button><button id="seg-m" onclick="setGender('m')">un garçon</button></span></div>
+      <div class="set-row"><label>Nom du compagnon</label>
+        <input type="text" id="set-mount" maxlength="14"></div>
+      <button class="btn-mini" onclick="saveSettings()">✓ Enregistrer</button>
+    </div>
+  </div>
+
+  <div class="notif-card" id="notif-card">
+    <span>🔔 Un petit rappel chaque jour ?</span>
+    <button class="btn-mini" onclick="enableNotifs()">Activer</button>
+    <button class="btn-mini ghost" onclick="dismissNotifs()">Plus tard</button>
+  </div>
+  <div id="story-list"></div>
+  <button id="reset-progress" onclick="resetProgress()">↺ Effacer la progression</button>
+  <footer class="foot">
+    <p>Créé avec ❤️ par <a id="author-link" href="#" target="_blank" rel="noopener">Cédric Delalande</a></p>
+    <p>💡 Une idée pour améliorer le jeu ? <a id="feedback-link" href="#" target="_blank" rel="noopener">Dis-le moi sur LinkedIn</a></p>
+  </footer>
+  <div class="warn" id="compat-warn"></div>
+</div>
+
+<div id="screen-read" class="screen">
+  <button class="back" onclick="stopAll(); show('screen-home'); renderHome();">← Retour</button>
+  <div class="story-head" id="read-title"></div>
+  <div class="control-bar">
+    <button id="btn-mic" onclick="micTap()">🎤</button>
+    <div class="control-txt">
+      <p class="mic-label" id="mic-label">Appuie sur le micro et lis !</p>
+      <p id="heard"></p>
+    </div>
+  </div>
+  <div class="track">
+    <span id="fly">🦋</span>
+    <span id="spark">✨</span>
+    <span id="pony"></span>
+    <span class="finish">🏁</span>
+  </div>
+  <div class="race-info">
+    <span id="streak">🔥 série : 0</span>
+    <span id="timer">⏱ 0 s</span>
+    <button class="quit" id="btn-quit" onclick="finishExercise()" style="display:none">J'ai fini ✓</button>
+  </div>
+  <div id="text-display"></div>
+</div>
+
+<div id="screen-results" class="screen">
+  <div class="results-box">
+    <div class="big-stars" id="res-stars"></div>
+    <p id="res-message"></p>
+    <p id="res-race"></p>
+    <p id="res-apples"></p>
+    <div class="stat-grid">
+      <div class="rstat"><div class="rval" id="res-mclm">–</div><div class="rlbl">mots / minute</div></div>
+      <div class="rstat"><div class="rval" id="res-prec">–</div><div class="rlbl">précision</div></div>
+      <div class="rstat"><div class="rval" id="res-pausesv">–</div><div class="rlbl">sauts d'obstacles ⏸</div></div>
+    </div>
+    <p id="res-pauses"></p>
+    <p id="res-unlock"></p>
+    <p id="missed-words"></p>
+  </div>
+  <div style="text-align:center; margin-top:14px;">
+    <button class="btn" onclick="openStory(currentIdx)">🔄 Revanche</button>
+    <button class="btn" id="btn-next" onclick="nextStory()">➡️ Suite</button>
+    <button class="btn secondary" onclick="show('screen-home'); renderHome();">🏠 Histoires</button>
+  </div>
+</div>
+
+<script>
+/* ============ LIENS ============ */
+const LINKEDIN_PROFILE = 'https://www.linkedin.com/in/cedric-delalande-57bb7860/';
+/* TODO : remplacer par l'URL du post LinkedIn dès sa publication */
+const FEEDBACK_URL = LINKEDIN_PROFILE;
+
+/* ============ MONTURES / NOURRITURE / BOUTIQUE ============ */
+const MOUNTS = {
+  pony:    { em:'🐴', label:'Poney',   noun:'poney',   g:'m', price:0,   body:'#c8863f', mane:'#8a5a2b', belly:'#e9c391' },
+  unicorn: { em:'🦄', label:'Licorne', noun:'licorne', g:'f', price:150, body:'#f6f0ff', mane:'#f472b6', belly:'#ffffff' },
+  dragon:  { em:'🐉', label:'Dragon',  noun:'dragon',  g:'m', price:150, body:'#4caf7d', mane:'#166534', belly:'#bbf7d0' }
+};
+const FOODS = [
+  { id:'carotte', e:'🥕', name:'Carotte', price:5,  faim:15, joie:0 },
+  { id:'pomme',   e:'🍎', name:'Pomme',   price:10, faim:30, joie:5 },
+  { id:'tarte',   e:'🥧', name:'Tarte',   price:25, faim:70, joie:12 }
+];
+const SHOP = [
+  { id:'foulard',  e:'🧣', name:'Foulard',      price:30,  slot:'neck' },
+  { id:'noeud',    e:'🎀', name:'Nœud',         price:30,  slot:'tail' },
+  { id:'chapeau',  e:'👒', name:'Chapeau',      price:50,  slot:'head' },
+  { id:'lunettes', e:'🕶️', name:'Lunettes',    price:50,  slot:'face' },
+  { id:'echarpe',  e:'🌈', name:'Écharpe',      price:80,  slot:'neck' },
+  { id:'selle',    e:'🏵️', name:'Selle dorée', price:80,  slot:'back' },
+  { id:'couronne', e:'👑', name:'Couronne',     price:120, slot:'head' },
+  { id:'ailes',    e:'🦋', name:'Ailes de fée', price:150, slot:'wings' }
+];
