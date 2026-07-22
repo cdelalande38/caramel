@@ -133,18 +133,18 @@
   .finish { position:absolute; right:4px; bottom:8px; font-size:2.1rem; z-index:2; }
   #spark { position:absolute; bottom:54px; font-size:1.2rem; display:none; z-index:3; }
 
-  .m-root .m-body { animation:breathe 3.2s ease-in-out infinite; transform-origin:center; }
+  .m-root .m-body { animation:breathe 3.2s ease-in-out infinite; transform-origin:center; transform-box:fill-box; }
   @keyframes breathe { 0%,100%{transform:scaleY(1);} 50%{transform:scaleY(1.035) translateY(-1px);} }
-  .m-root .m-tail { animation:swish 2.6s ease-in-out infinite; transform-origin:90% 20%; }
+  .m-root .m-tail { animation:swish 2.6s ease-in-out infinite; transform-origin:90% 20%; transform-box:fill-box; }
   @keyframes swish { 0%,100%{transform:rotate(0);} 50%{transform:rotate(12deg);} }
-  .m-root .m-lid { animation:blink 4.5s infinite; transform-origin:center; transform:scaleY(0); }
+  .m-root .m-lid { animation:blink 4.5s infinite; transform-origin:center; transform-box:fill-box; transform:scaleY(0); }
   @keyframes blink { 0%,94%,100%{transform:scaleY(0);} 96%,98%{transform:scaleY(1);} }
-  .m-root.sad .m-ear { transform:rotate(30deg); transform-origin:30% 100%; }
+  .m-root.sad .m-ear { transform:rotate(30deg); transform-origin:30% 100%; transform-box:fill-box; }
   .m-root.sad .m-tail { animation-duration:5.5s; }
   .m-root.joy { animation:joyb .5s ease 2; }
   @keyframes joyb { 40%{ transform:translateY(-12px);} }
-  .m-root.walk .m-legF { animation:step .5s ease-in-out infinite; transform-origin:top center; }
-  .m-root.walk .m-legB { animation:step .5s ease-in-out infinite reverse; transform-origin:top center; }
+  .m-root.walk .m-legF { animation:step .5s ease-in-out infinite; transform-origin:top center; transform-box:fill-box; }
+  .m-root.walk .m-legB { animation:step .5s ease-in-out infinite reverse; transform-origin:top center; transform-box:fill-box; }
   @keyframes step { 0%,100%{transform:rotate(-13deg);} 50%{transform:rotate(13deg);} }
 
   .race-info { flex:none; display:flex; justify-content:space-between; align-items:center; gap:8px;
@@ -322,9 +322,14 @@ const FEEDBACK_URL = 'https://www.linkedin.com/posts/cedric-delalande-57bb7860_i
 
 /* ============ MONTURES / NOURRITURE / BOUTIQUE ============ */
 const MOUNTS = {
-  pony:    { em:'🐴', label:'Poney',   noun:'poney',   g:'m', price:0,   body:'#c8863f', mane:'#8a5a2b', belly:'#e9c391' },
-  unicorn: { em:'🦄', label:'Licorne', noun:'licorne', g:'f', price:150, body:'#f6f0ff', mane:'#f472b6', belly:'#ffffff' },
-  dragon:  { em:'🐉', label:'Dragon',  noun:'dragon',  g:'m', price:150, body:'#4caf7d', mane:'#166534', belly:'#bbf7d0' }
+  pony:    { em:'🐴', label:'Poney',    noun:'poney',    g:'m', kind:'horse',   price:0,   body:'#c8863f', mane:'#8a5a2b', belly:'#e9c391' },
+  horse:   { em:'🐎', label:'Cheval',   noun:'cheval',   g:'m', kind:'horse',   price:60,  body:'#a16207', mane:'#3f2412', belly:'#e7c8a0' },
+  cat:     { em:'🐱', label:'Chat',     noun:'chat',     g:'m', kind:'cat',     price:80,  body:'#f59e0b', mane:'#b45309', belly:'#fef3c7' },
+  capy:    { em:'🦫', label:'Capybara', noun:'capybara', g:'m', kind:'capy',    price:100, body:'#a8764f', mane:'#6f4e33', belly:'#d9b58e' },
+  dolphin: { em:'🐬', label:'Dauphin',  noun:'dauphin',  g:'m', kind:'dolphin', price:120, body:'#8fb4d9', mane:'#5a86ad', belly:'#eef6fc' },
+  lion:    { em:'🦁', label:'Lion',     noun:'lion',     g:'m', kind:'lion',    price:130, body:'#d97706', mane:'#92400e', belly:'#fde68a' },
+  unicorn: { em:'🦄', label:'Licorne',  noun:'licorne',  g:'f', kind:'horse',   horn:1, price:150, body:'#f6f0ff', mane:'#f472b6', belly:'#ffffff' },
+  dragon:  { em:'🐉', label:'Dragon',   noun:'dragon',   g:'m', kind:'dragon',  price:150, body:'#4caf7d', mane:'#166534', belly:'#bbf7d0' }
 };
 const FOODS = [
   { id:'carotte', e:'🥕', name:'Carotte', price:5,  faim:15, joie:0 },
@@ -587,50 +592,98 @@ function applyAppTitle(){
 /* ============ COMPAGNON : SVG GÉNÉRÉ ============ */
 function mountSVG(type, worn, size, moodClass){
   const M = MOUNTS[type] || MOUNTS.pony;
-  const uni = type === 'unicorn', dra = type === 'dragon';
+  const K = M.kind || 'horse';
   const w = worn || [];
   const eq = slot => { const it = SHOP.find(o => o.slot===slot && w.includes(o.id)); return it ? it.e : ''; };
-  const T = (em,x,y,fs)=> em ? '<text x="'+x+'" y="'+y+'" font-size="'+fs+'" text-anchor="middle">'+em+'</text>' : '';
+  const T = (em,a)=> em ? '<text x="'+a[0]+'" y="'+a[1]+'" font-size="'+a[2]+'" text-anchor="middle">'+em+'</text>' : '';
+  const eye = (x,y)=> '<circle cx="'+x+'" cy="'+y+'" r="1.9" fill="#3f2d20"/>' +
+    '<rect class="m-lid" x="'+(x-2.6)+'" y="'+(y-2.5)+'" width="5.2" height="4.4" rx="2.2" fill="'+M.body+'"/>';
   let p = '';
-  /* queue */
-  if(dra){
-    p += '<path class="m-tail" d="M28,46 Q10,50 6,62 L14,58 Q13,52 28,52 Z" fill="'+M.body+'"/>' +
-         '<polygon class="m-tail" points="4,64 12,58 10,66" fill="'+M.mane+'"/>';
+  const A = { wings:[42,28,16], back:[49,36,13], tail:[14,54,11], neck:[71,42,12], head:[80,10,13], face:[86,27,10] };
+
+  if(K === 'dolphin'){
+    /* nageoire caudale (pivot inline : attache a droite du groupe) */
+    p += '<g class="m-tail" style="transform-origin:95% 50%"><path d="M26,44 Q13,34 6,29 L15,44 L6,59 Q13,54 26,49 Z" fill="'+M.body+'"/></g>';
+    /* nageoires : classes m-legB/m-legF => elles ondulent avec l anim de marche (= nage) */
+    p += '<g class="m-legB"><path d="M44,50 Q40,62 32,65 Q40,54 40,47 Z" fill="'+M.mane+'" opacity=".85"/></g>';
+    p += '<g class="m-body"><ellipse cx="52" cy="44" rx="28" ry="13" fill="'+M.body+'"/>' +
+         '<ellipse cx="55" cy="50" rx="18" ry="6" fill="'+M.belly+'"/>' +
+         '<path d="M46,32 Q51,15 61,23 Q53,25 51,33 Z" fill="'+M.body+'"/></g>';
+    p += '<g class="m-legF"><path d="M60,50 Q56,64 46,68 Q54,56 54,47 Z" fill="'+M.body+'"/></g>';
+    p += '<ellipse cx="80" cy="40" rx="12" ry="9" fill="'+M.body+'"/>' +
+         '<ellipse cx="92" cy="44" rx="6.5" ry="3" fill="'+M.belly+'"/>' +
+         '<path d="M87,46 Q92,49 97,46" stroke="'+M.mane+'" stroke-width="1" fill="none" stroke-linecap="round"/>' +
+         eye(84,38);
+    A.wings=[46,24,16]; A.back=[52,34,13]; A.tail=[12,44,11]; A.neck=[71,50,12]; A.head=[81,26,13]; A.face=[88,39,10];
   } else {
-    p += '<path class="m-tail" d="M28,44 Q14,46 11,62" stroke="'+M.mane+'" stroke-width="6" fill="none" stroke-linecap="round"/>';
+    /* ---------- quadrupedes : squelette commun + variantes ---------- */
+    /* queue : toujours un seul groupe .m-tail => pivot commun a toutes ses pieces */
+    if(K === 'dragon'){
+      p += '<g class="m-tail"><path d="M28,46 Q10,50 6,62 L14,58 Q13,52 28,52 Z" fill="'+M.body+'"/>' +
+           '<polygon points="4,64 12,58 10,66" fill="'+M.mane+'"/></g>';
+    } else if(K === 'cat'){
+      p += '<g class="m-tail" style="transform-origin:95% 92%"><path d="M28,46 Q16,42 15,28 Q15,24 19,22" stroke="'+M.body+'" stroke-width="5" fill="none" stroke-linecap="round"/>' +
+           '<circle cx="19" cy="22" r="3" fill="'+M.mane+'"/></g>';
+      A.tail = [17,18,10];
+    } else if(K === 'lion'){
+      p += '<g class="m-tail"><path d="M28,46 Q12,50 10,61" stroke="'+M.body+'" stroke-width="4.5" fill="none" stroke-linecap="round"/>' +
+           '<circle cx="10" cy="63" r="3.5" fill="'+M.mane+'"/></g>';
+    } else if(K === 'capy'){
+      p += '<g class="m-tail"><circle cx="27" cy="42" r="2.5" fill="'+M.mane+'"/></g>';
+      A.tail = [27,37,10];
+    } else {
+      p += '<g class="m-tail"><path d="M28,44 Q14,46 11,62" stroke="'+M.mane+'" stroke-width="6" fill="none" stroke-linecap="round"/></g>';
+    }
+    /* pattes arriere (capybara : pattes courtes) */
+    const ly = K==='capy' ? 56 : 50, lh = K==='capy' ? 18 : 24;
+    p += '<g class="m-legB"><rect x="34" y="'+ly+'" width="5.5" height="'+lh+'" rx="2.5" fill="'+M.body+'"/>' +
+         '<rect x="43" y="'+ly+'" width="5.5" height="'+lh+'" rx="2.5" fill="'+M.mane+'" opacity=".85"/></g>';
+    if(K === 'dragon') p += '<path d="M48,36 Q36,14 22,18 Q34,28 42,40 Z" fill="'+M.belly+'" stroke="'+M.mane+'" stroke-width="1.5"/>';
+    /* corps + ventre (respiration) */
+    p += '<g class="m-body"><ellipse cx="50" cy="46" rx="'+(K==='capy'?26:24)+'" ry="'+(K==='capy'?15:14)+'" fill="'+M.body+'"/>' +
+         '<ellipse cx="50" cy="52" rx="15" ry="6.5" fill="'+M.belly+'"/>';
+    if(K === 'cat') p += '<path d="M40,34 Q42,41 40,47" stroke="'+M.mane+'" stroke-width="2.5" fill="none" opacity=".5"/>' +
+                         '<path d="M50,32 Q52,41 50,46" stroke="'+M.mane+'" stroke-width="2.5" fill="none" opacity=".5"/>';
+    p += '</g>';
+    if(K === 'dragon') p += '<path d="M32,34 L36,26 L40,34 L44,25 L48,34 L52,26 L56,34 Z" fill="'+M.mane+'"/>';
+    /* pattes avant */
+    p += '<g class="m-legF"><rect x="58" y="'+ly+'" width="5.5" height="'+lh+'" rx="2.5" fill="'+M.body+'"/>' +
+         '<rect x="67" y="'+ly+'" width="5.5" height="'+lh+'" rx="2.5" fill="'+M.mane+'" opacity=".85"/></g>';
+    if(K === 'capy'){
+      /* cou court : la tete est posee sur le corps */
+      p += '<ellipse cx="78" cy="29" rx="12" ry="10" fill="'+M.body+'"/>' +
+           '<ellipse cx="88" cy="31" rx="6" ry="5" fill="'+M.belly+'"/>' +
+           '<circle cx="90.5" cy="29.5" r="1" fill="#5b3a29"/>' +
+           '<circle class="m-ear" cx="73" cy="17" r="2.8" fill="'+M.mane+'"/>' +
+           eye(79,26);
+      A.wings=[42,26,16]; A.back=[49,34,13]; A.neck=[68,42,12]; A.head=[77,13,13]; A.face=[84,30,10];
+    } else {
+      p += '<path d="M62,44 L74,20 L84,26 L74,50 Z" fill="'+M.body+'"/>';
+      if(K === 'lion') p += '<circle cx="81" cy="23" r="14" fill="'+M.mane+'"/>';
+      if(K === 'horse') p += '<path d="M73,13 Q68,26 64,40 Q71,37 76,26 Q79,18 80,14 Z" fill="'+M.mane+'"/>';
+      p += '<ellipse cx="82" cy="23" rx="10" ry="8" fill="'+M.body+'"/>' +
+           '<ellipse cx="90" cy="26" rx="5" ry="4" fill="'+M.belly+'"/>' +
+           '<circle cx="91.5" cy="26" r=".9" fill="#5b3a29"/>';
+      if(K === 'cat'){
+        p += '<polygon class="m-ear" points="73,7 78,18 69,16" fill="'+M.body+'"/>' +
+             '<polygon class="m-ear" points="87,9 90,18 81,15" fill="'+M.body+'"/>' +
+             '<path d="M87,25 L97,22 M87,27 L98,27" stroke="'+M.mane+'" stroke-width=".8" fill="none"/>';
+      } else if(K === 'lion'){
+        p += '<circle class="m-ear" cx="75" cy="12" r="3.5" fill="'+M.body+'"/>';
+      } else {
+        p += '<polygon class="m-ear" points="76,9 80,18 71,17" fill="'+M.body+'"/>';
+      }
+      if(M.horn) p += '<polygon points="82,2 85,13 79,13" fill="#fbbf24"/>';
+      if(K === 'dragon') p += '<polygon points="84,10 88,15 82,16" fill="'+M.mane+'"/>';
+      p += eye(82,21.5);
+    }
   }
-  /* pattes arrière (animées à la marche) */
-  p += '<g class="m-legB"><rect x="34" y="50" width="5.5" height="24" rx="2.5" fill="'+M.body+'"/>' +
-       '<rect x="43" y="50" width="5.5" height="24" rx="2.5" fill="'+M.mane+'" opacity=".85"/></g>';
-  /* aile de dragon (derrière le corps) */
-  if(dra) p += '<path d="M48,36 Q36,14 22,18 Q34,28 42,40 Z" fill="'+M.belly+'" stroke="'+M.mane+'" stroke-width="1.5"/>';
-  /* corps + ventre (respiration) */
-  p += '<g class="m-body"><ellipse cx="50" cy="46" rx="24" ry="14" fill="'+M.body+'"/>' +
-       '<ellipse cx="50" cy="52" rx="15" ry="6.5" fill="'+M.belly+'"/></g>';
-  /* pics dorsaux du dragon */
-  if(dra) p += '<path d="M32,34 L36,26 L40,34 L44,25 L48,34 L52,26 L56,34 Z" fill="'+M.mane+'"/>';
-  /* pattes avant */
-  p += '<g class="m-legF"><rect x="58" y="50" width="5.5" height="24" rx="2.5" fill="'+M.body+'"/>' +
-       '<rect x="67" y="50" width="5.5" height="24" rx="2.5" fill="'+M.mane+'" opacity=".85"/></g>';
-  /* cou + tête */
-  p += '<path d="M62,44 L74,20 L84,26 L74,50 Z" fill="'+M.body+'"/>';
-  if(!dra) p += '<path d="M73,13 Q68,26 64,40 Q71,37 76,26 Q79,18 80,14 Z" fill="'+M.mane+'"/>';
-  p += '<ellipse cx="82" cy="23" rx="10" ry="8" fill="'+M.body+'"/>' +
-       '<ellipse cx="90" cy="26" rx="5" ry="4" fill="'+M.belly+'"/>' +
-       '<circle cx="91.5" cy="26" r=".9" fill="#5b3a29"/>' +
-       '<polygon class="m-ear" points="76,9 80,18 71,17" fill="'+M.body+'"/>';
-  if(uni) p += '<polygon points="82,2 85,13 79,13" fill="#fbbf24"/>';
-  if(dra) p += '<polygon points="84,10 88,15 82,16" fill="'+M.mane+'"/>';
-  /* œil + paupière (clignement) */
-  p += '<circle cx="82" cy="21.5" r="1.9" fill="#3f2d20"/>' +
-       '<rect class="m-lid" x="79.4" y="19" width="5.2" height="4.4" rx="2.2" fill="'+M.body+'"/>';
-  /* équipements portés */
-  p += T(eq('wings'), 42, 28, 16) + T(eq('back'), 49, 36, 13) + T(eq('tail'), 14, 54, 11) +
-       T(eq('neck'), 71, 42, 12) + T(eq('head'), 80, 10, 13) + T(eq('face'), 86, 27, 10);
+  /* equipements portes */
+  p += T(eq('wings'),A.wings) + T(eq('back'),A.back) + T(eq('tail'),A.tail) +
+       T(eq('neck'),A.neck) + T(eq('head'),A.head) + T(eq('face'),A.face);
   return '<svg class="m-root ' + (moodClass||'') + '" width="' + size + '" height="' + Math.round(size*0.84) +
     '" viewBox="0 0 100 84" xmlns="http://www.w3.org/2000/svg">' + p + '</svg>';
 }
-
 /* ============ COMPAGNON : JAUGES & HUMEUR (bienveillant, jamais punitif) ============ */
 const PET_FLOOR = 15;
 const DECAY = { faim: 48*3600e3, forme: 72*3600e3, joie: 96*3600e3 }; /* −100 sur la durée */
@@ -1211,6 +1264,9 @@ function openStory(i){
   state.wordTime = new Array(state.target.length).fill(null);
   state.pauseResults = new Array(state.target.length).fill(null);
   state.proper = computeProper(state.target);
+  /* le nom de la monture peut manquer au lexique du modele Vosk (licorne, capybara...) :
+     on autorise le wildcard [unk] a le valider, comme un prenom */
+  state.proper.add(normalize(MOUNTS[save.mount.type].noun));
 
   document.getElementById('read-title').textContent = s.emoji + ' ' + fillTemplate(s.title) + ' — bats Zip 🦋 !';
   const disp = document.getElementById('text-display');
