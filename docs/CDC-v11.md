@@ -23,12 +23,11 @@ Le projet a fait l'objet d'un post LinkedIn (à publier / publié) — voir §2 
 ### Fichiers du repo
 | Fichier | Rôle |
 |---|---|
-| `index.html` | Toute l'app (v10 en prod) — fichier unique HTML/CSS/JS |
+| `index.html` | Toute l'app (v11 en prod) — fichier unique HTML/CSS/JS |
 | `models/fr.tar.gz` | Modèle Vosk français `vosk-model-small-fr-pguyot-0.3` (44 Mo) |
 | `sw.js` | Service worker : rappels quotidiens (periodic sync `caramel-daily`) + coquille hors-ligne (exclut `/models/`) |
 | `manifest.webmanifest`, `icon.svg`, `icon-192/512.png`, `favicon-32.png` | PWA / icônes (tête de Caramel) |
 | `docs/CDC-v11.md` | Ce document |
-| `wip/index_v11_part1.html` | **Début de v11** (343 lignes : HTML + CSS + données MOUNTS/FOODS/SHOP) à compléter, voir §6 |
 
 ## 3. Architecture actuelle (v10, en prod)
 
@@ -51,7 +50,7 @@ Fichier unique, zéro framework. Écrans : accueil (liste histoires par niveaux 
 
 - ✅ v1→v10 : livrées et en prod (historique git parlant, une version = un commit)
 - 🚧 **v11 : périmètre validé par Cédric, implémentation commencée** — partie 1 committée dans `wip/index_v11_part1.html` (structure HTML/CSS complète du compagnon/boutique/réglages + données MOUNTS/FOODS/SHOP). **Manquent : le bloc STORIES 27 histoires templatées (annexe A + retrofit des 15 CE2 depuis `index.html` prod) et toute la partie 2 du script** (§6).
-- ⚠️ Anomalie connue : la sandbox est partagée entre branches de conversation → des artefacts « fantômes » peuvent exister (un commit v6 non sollicité, un `index_v11.html` parallèle de 1425 lignes incomplet — sans templating, sans CE1/CM1, sans tamagotchi : **à ignorer**). Toujours `git pull --rebase` et vérifier `git log` avant de pousser.
+- ⚠️ Anomalie connue : la sandbox est partagée entre branches de conversation → des artefacts « fantômes » peuvent exister (un commit v6 non sollicité, un `index_v11.html` parallèle de 1425 lignes incomplet : **résolu, la v11 réelle est en prod**). Toujours `git pull --rebase` et vérifier `git log` avant de pousser.
 
 ## 6. Spécification v11 (périmètre validé — « une grosse version »)
 
@@ -108,9 +107,9 @@ Partie 2 du script à écrire = save/migration, économie/streak, template, modu
 - Public : enfant de 8-10 ans → ton toujours encourageant, minimum 1 étoile, aucun mécanisme culpabilisant.
 
 ## 9. Checklist de démarrage de la nouvelle session
-1. Demander à Cédric : **un token GitHub neuf** (et révocation de l'ancien) + **l'URL du post LinkedIn** (→ `FEEDBACK_URL`).
-2. Cloner le repo, `git log` (vérifier l'absence de commits inattendus), lire `index.html` (v10 = référence moteur) et `wip/index_v11_part1.html`.
-3. Implémenter §6 (partie 2 + STORIES annexe A + retrofit CE2), `node --check`, push `main`, vérifier le build Pages, faire tester sur le téléphone (recharger 2×).
+1. Demander à Cédric : **un token GitHub neuf** (et révocation de l'ancien) + **l'URL du post LinkedIn** si toujours manquante (→ `FEEDBACK_URL`).
+2. Cloner le repo, `git log` (vérifier l'absence de commits inattendus), lire `index.html` (v11 = référence moteur + compagnon).
+3. Recueillir le retour du test terrain v11 (téléphone de la fille de Cédric), corriger si besoin, puis attaquer le **Lot 3** (§7).
 4. Mettre à jour ce CDC (`docs/CDC-v11.md`) : état, décisions, prochain lot.
 
 ---

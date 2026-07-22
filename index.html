@@ -11,22 +11,60 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-  body {
-    font-family:'Segoe UI Rounded','Comic Sans MS','Segoe UI',Verdana,sans-serif;
+  body { font-family:'Segoe UI Rounded','Comic Sans MS','Segoe UI',Verdana,sans-serif;
     min-height:100vh; color:#5b3a29;
-    background:linear-gradient(180deg,#fff1f5 0%,#fef3e2 60%,#fdeef7 100%);
-  }
+    background:linear-gradient(180deg,#fff1f5 0%,#fef3e2 60%,#fdeef7 100%); }
   .screen { display:none; max-width:680px; margin:0 auto; padding:14px 12px 30px; }
   .screen.active { display:block; animation:pop .3s ease; }
   #screen-read.active { display:flex; flex-direction:column; height:100vh; height:100dvh;
                         overflow:hidden; padding-bottom:10px; }
   @keyframes pop { from{opacity:0; transform:scale(.97);} to{opacity:1; transform:scale(1);} }
+  header { text-align:center; margin:8px 0 2px; }
+  h1 { font-size:1.6rem; color:#b45309; }
+  #engine-status { text-align:center; font-size:.8rem; color:#b9a394; margin-bottom:4px; min-height:1.1em; }
+  #wallet { text-align:center; font-size:1.1rem; margin-bottom:10px; color:#b45309; font-weight:700; }
 
-  header { text-align:center; margin:10px 0 4px; }
-  h1 { font-size:1.75rem; color:#b45309; }
-  .subtitle { text-align:center; color:#9d6b53; margin-bottom:4px; font-size:1rem; }
-  #engine-status { text-align:center; font-size:.82rem; color:#b9a394; margin-bottom:6px; min-height:1.2em; }
-  #total-stars { text-align:center; font-size:1.2rem; margin-bottom:6px; color:#b45309; font-weight:700; }
+  .pet-card { background:#fff; border:3px solid #fbcfe8; border-radius:24px; padding:12px 14px 14px;
+              margin-bottom:14px; box-shadow:0 4px 14px rgba(180,83,9,.08); overflow:hidden; }
+  #pet-stage { position:relative; height:150px; border-radius:18px; overflow:hidden; cursor:pointer;
+               background:linear-gradient(180deg,#bae6fd 0%,#e0f2fe 55%,#86efac 55%,#4ade80 100%); }
+  #pet-holder { position:absolute; left:50%; bottom:4px; transform:translateX(-50%); line-height:0; }
+  #pet-holder.walking { animation:walkmove 4s ease-in-out; }
+  @keyframes walkmove { 0%{transform:translateX(-50%);} 25%{transform:translateX(-115%);} 75%{transform:translateX(15%);} 100%{transform:translateX(-50%);} }
+  #pet-stage .heart { position:absolute; font-size:1.2rem; animation:heartup 1.2s ease-out forwards; pointer-events:none; z-index:5; }
+  @keyframes heartup { from{opacity:1; transform:translateY(0);} to{opacity:0; transform:translateY(-56px);} }
+  .pet-sun { position:absolute; top:6px; right:10px; font-size:1.3rem; }
+  .pet-cloud { position:absolute; top:8px; font-size:1.1rem; animation:drift 46s linear infinite; }
+  #pet-mood { text-align:center; font-size:.95rem; color:#7c5843; margin:8px 0 6px; min-height:1.3em; font-weight:700; }
+  .gauges { display:flex; gap:8px; margin-bottom:10px; }
+  .gauge { flex:1; }
+  .gauge .glbl { font-size:.75rem; color:#9d6b53; margin-bottom:3px; text-align:center; }
+  .gbar { height:12px; border-radius:8px; background:#fdf2f8; border:2px solid #fbcfe8; overflow:hidden; }
+  .gfill { height:100%; border-radius:6px; transition:width .5s; }
+  .g-faim .gfill { background:#fb923c; } .g-forme .gfill { background:#4ade80; } .g-joie .gfill { background:#f472b6; }
+  .pet-actions { display:flex; gap:6px; flex-wrap:wrap; justify-content:center; }
+  .pact { flex:1 1 21%; min-width:74px; border-radius:14px; padding:9px 4px; cursor:pointer;
+          background:#fdf2f8; border:2px solid #fbcfe8; color:#9d174d; font-weight:700; font-size:.85rem; }
+  .pact:active { transform:scale(.96); }
+  .panel { display:none; background:#fff7ed; border:2px dashed #fdba74; border-radius:16px;
+           padding:12px; margin-top:10px; }
+  .panel.open { display:block; animation:pop .25s ease; }
+  .panel h3 { font-size:.95rem; color:#b45309; margin-bottom:8px; }
+  .shop-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(102px,1fr)); gap:8px; }
+  .shop-item { background:#fff; border:2px solid #fbcfe8; border-radius:14px; padding:8px 6px;
+               text-align:center; cursor:pointer; font-size:.8rem; color:#7c5843; }
+  .shop-item .se { font-size:1.6rem; display:block; }
+  .shop-item .sp { color:#b45309; font-weight:700; }
+  .shop-item.owned { border-color:#86efac; }
+  .shop-item.worn { border-color:#f59e0b; background:#fef9c3; }
+  .set-row { display:flex; align-items:center; gap:8px; margin-bottom:10px; flex-wrap:wrap; font-size:.92rem; }
+  .set-row label { min-width:130px; color:#7c5843; font-weight:700; }
+  .set-row input[type=text] { flex:1; min-width:120px; padding:9px 12px; border-radius:12px;
+        border:2px solid #fbcfe8; font-size:1rem; font-family:inherit; color:#5b3a29; }
+  .seg { display:flex; gap:6px; }
+  .seg button { padding:8px 14px; border-radius:999px; border:2px solid #fbcfe8; background:#fff;
+                cursor:pointer; font-weight:700; color:#9d6b53; font-size:.88rem; }
+  .seg button.on { background:#fce7f3; border-color:#f472b6; color:#9d174d; }
 
   .notif-card { display:none; align-items:center; gap:10px; flex-wrap:wrap;
     background:#fff; border:3px solid #fde68a; border-radius:18px;
@@ -37,12 +75,10 @@
 
   .level-title { font-size:.95rem; font-weight:800; color:#b45309; margin:20px 4px 10px;
                  text-transform:uppercase; letter-spacing:.6px; }
-  .story-card {
-    display:flex; align-items:center; gap:12px;
+  .story-card { display:flex; align-items:center; gap:12px;
     background:#fff; border:3px solid #fbcfe8; border-radius:22px;
     padding:14px 16px; margin-bottom:12px; cursor:pointer;
-    box-shadow:0 4px 14px rgba(180,83,9,.08); transition:transform .12s;
-  }
+    box-shadow:0 4px 14px rgba(180,83,9,.08); transition:transform .12s; }
   .story-card:active { transform:scale(.98); }
   .story-card.locked { filter:grayscale(1); opacity:.55; cursor:default; }
   .story-card.locked:active { transform:none; }
@@ -57,22 +93,16 @@
                     color:#c4a189; text-decoration:underline; font-size:.85rem; cursor:pointer; }
   .foot { margin-top:28px; text-align:center; font-size:.88rem; color:#b98a6f; line-height:1.9; }
   .foot a { color:#b45309; font-weight:700; }
-
   .back { background:none; border:none; color:#b45309; font-size:1rem; cursor:pointer;
           margin-bottom:4px; text-align:left; flex:none; }
   .story-head { text-align:center; font-size:1.1rem; font-weight:700; margin:0 0 8px; color:#b45309; flex:none; }
 
-  .control-bar {
-    flex:none; display:flex; align-items:center; gap:14px;
+  .control-bar { flex:none; display:flex; align-items:center; gap:14px;
     background:#fff; border-radius:20px; padding:10px 14px; margin-bottom:10px;
-    box-shadow:0 4px 14px rgba(180,83,9,.10);
-  }
-  #btn-mic {
-    flex:none; width:72px; height:72px; border-radius:50%; border:none; cursor:pointer;
-    font-size:2rem; color:#fff;
-    background:linear-gradient(145deg,#f472b6,#c084fc);
-    box-shadow:0 6px 16px rgba(196,132,252,.45); transition:transform .12s;
-  }
+    box-shadow:0 4px 14px rgba(180,83,9,.10); }
+  #btn-mic { flex:none; width:72px; height:72px; border-radius:50%; border:none; cursor:pointer;
+    font-size:2rem; color:#fff; background:linear-gradient(145deg,#f472b6,#c084fc);
+    box-shadow:0 6px 16px rgba(196,132,252,.45); transition:transform .12s; }
   #btn-mic:active { transform:scale(.94); }
   #btn-mic.listening { animation:micpulse 1.3s infinite; }
   @keyframes micpulse { 0%,100%{box-shadow:0 6px 16px rgba(196,132,252,.45);} 50%{box-shadow:0 0 0 14px rgba(244,114,182,.22);} }
@@ -81,15 +111,13 @@
   #heard { font-size:.88rem; color:#b9a394; font-style:italic; min-height:1.2em; margin-top:2px;
            white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
-  .track {
-    flex:none; position:relative; height:122px; border-radius:20px; overflow:hidden;
+  .track { flex:none; position:relative; height:122px; border-radius:20px; overflow:hidden;
     background:linear-gradient(180deg,#7dd3fc 0%,#bae6fd 46%,#86efac 46%,#4ade80 100%);
-    box-shadow:inset 0 2px 8px rgba(0,0,0,.08); margin-bottom:6px;
-  }
+    box-shadow:inset 0 2px 8px rgba(0,0,0,.08); margin-bottom:6px; }
   .deco { position:absolute; z-index:1; }
   .deco.drifting { animation:drift linear infinite; }
   @keyframes drift { from{ left:-12%; } to{ left:104%; } }
-  #pony { position:absolute; bottom:6px; left:0; font-size:2.7rem; transition:left .35s ease; z-index:3; }
+  #pony { position:absolute; bottom:6px; left:0; transition:left .35s ease; z-index:3; line-height:0; }
   #pony.hop { animation:hop .3s ease; }
   #pony.hop-big { animation:hopbig .5s ease; }
   #pony.stumble { animation:stumble .5s ease; }
@@ -105,25 +133,34 @@
   .finish { position:absolute; right:4px; bottom:8px; font-size:2.1rem; z-index:2; }
   #spark { position:absolute; bottom:54px; font-size:1.2rem; display:none; z-index:3; }
 
+  .m-root .m-body { animation:breathe 3.2s ease-in-out infinite; transform-origin:center; }
+  @keyframes breathe { 0%,100%{transform:scaleY(1);} 50%{transform:scaleY(1.035) translateY(-1px);} }
+  .m-root .m-tail { animation:swish 2.6s ease-in-out infinite; transform-origin:90% 20%; }
+  @keyframes swish { 0%,100%{transform:rotate(0);} 50%{transform:rotate(12deg);} }
+  .m-root .m-lid { animation:blink 4.5s infinite; transform-origin:center; transform:scaleY(0); }
+  @keyframes blink { 0%,94%,100%{transform:scaleY(0);} 96%,98%{transform:scaleY(1);} }
+  .m-root.sad .m-ear { transform:rotate(30deg); transform-origin:30% 100%; }
+  .m-root.sad .m-tail { animation-duration:5.5s; }
+  .m-root.joy { animation:joyb .5s ease 2; }
+  @keyframes joyb { 40%{ transform:translateY(-12px);} }
+  .m-root.walk .m-legF { animation:step .5s ease-in-out infinite; transform-origin:top center; }
+  .m-root.walk .m-legB { animation:step .5s ease-in-out infinite reverse; transform-origin:top center; }
+  @keyframes step { 0%,100%{transform:rotate(-13deg);} 50%{transform:rotate(13deg);} }
+
   .race-info { flex:none; display:flex; justify-content:space-between; align-items:center; gap:8px;
                font-size:.95rem; color:#9d6b53; font-weight:700; margin-bottom:8px; padding:0 4px; }
   .quit { background:none; border:none; color:#b98a6f; font-size:.9rem; cursor:pointer; text-decoration:underline; }
 
-  #text-display {
-    position:relative; flex:1; min-height:0;
+  #text-display { position:relative; flex:1; min-height:0;
     background:#fff; border-radius:22px; padding:26px 20px;
     font-size:1.9rem; line-height:2.5; color:#3f2d20;
-    box-shadow:0 6px 18px rgba(180,83,9,.12);
-    overflow-y:auto;
-  }
+    box-shadow:0 6px 18px rgba(180,83,9,.12); overflow-y:auto; }
   .word { padding:2px 6px; border-radius:10px; opacity:.5; display:inline-block;
           transition:opacity .2s, transform .2s, background .2s; }
   .word.read   { opacity:1; background:#bbf7d0; color:#14532d; }
   .word.missed { opacity:1; background:#fed7aa; color:#7c2d12; }
-  .word.current {
-    opacity:1; background:#fde68a; transform:scale(1.18);
-    box-shadow:0 0 0 3px #f59e0b; animation:pulse 1.2s infinite; font-weight:700;
-  }
+  .word.current { opacity:1; background:#fde68a; transform:scale(1.18);
+    box-shadow:0 0 0 3px #f59e0b; animation:pulse 1.2s infinite; font-weight:700; }
   @keyframes pulse { 0%,100%{box-shadow:0 0 0 3px #f59e0b;} 50%{box-shadow:0 0 0 7px #f59e0b55;} }
   .word.pause-ok::after   { content:'⏸'; font-size:.5em; color:#16a34a; margin-left:3px; vertical-align:super; }
   .word.pause-fast::after { content:'⏸'; font-size:.5em; color:#ea580c; margin-left:3px; vertical-align:super; opacity:.85; }
@@ -133,6 +170,7 @@
   .big-stars { font-size:4.6rem; letter-spacing:8px; margin:4px 0 14px; animation:pop .4s ease; }
   #res-message { font-size:1.45rem; font-weight:800; color:#5b3a29; margin-bottom:10px; }
   #res-race { font-size:1.15rem; color:#7c5843; margin-bottom:6px; }
+  #res-apples { font-size:1.3rem; color:#c2410c; font-weight:800; margin:6px 0; }
   .stat-grid { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin:18px 0 8px; }
   .rstat { background:#fdf2f8; border:2px solid #fbcfe8; border-radius:18px;
            padding:14px 18px; min-width:108px; flex:1 1 108px; max-width:160px; }
@@ -141,23 +179,19 @@
   #res-pauses { font-size:1.08rem; color:#7c5843; margin-top:6px; min-height:1.3em; }
   #res-unlock { font-size:1.15rem; color:#9d174d; font-weight:800; margin-top:10px; }
   #missed-words { margin-top:14px; font-size:1.15rem; color:#7c2d12; }
-  .btn {
-    display:inline-block; border:none; cursor:pointer; margin:8px 4px 0;
+  .btn { display:inline-block; border:none; cursor:pointer; margin:8px 4px 0;
     padding:14px 26px; border-radius:999px; font-size:1.1rem; font-weight:700;
-    background:#fbbf24; color:#78350f; box-shadow:0 4px 10px rgba(180,83,9,.25);
-  }
+    background:#fbbf24; color:#78350f; box-shadow:0 4px 10px rgba(180,83,9,.25); }
   .btn.secondary { background:#fce7f3; color:#9d174d; }
   .warn { background:#fee2e2; color:#7f1d1d; padding:12px 16px; border-radius:14px;
           margin-top:14px; text-align:center; display:none; font-size:.98rem; }
-
   #confetti { position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:50; }
   #confetti span { position:absolute; top:-10%; font-size:1.6rem; animation:fall 2.6s ease-in forwards; }
   @keyframes fall { to { transform:translateY(115vh) rotate(360deg); } }
-
   @media (min-width: 900px){
     .screen { max-width:1100px; }
+    #pet-stage { height:210px; }
     .track { height:190px; }
-    #pony { font-size:4.4rem; }
     #fly { font-size:2.7rem; top:60px; }
     .finish { font-size:3.4rem; }
     .hurdle { font-size:2.2rem; }
@@ -168,24 +202,60 @@
     #text-display { font-size:2.25rem; padding:34px 40px; }
     .big-stars { font-size:5.6rem; }
     #res-message { font-size:1.75rem; }
-    #res-race { font-size:1.3rem; }
     .rval { font-size:2.9rem; }
-    .rlbl { font-size:1rem; }
-    #missed-words { font-size:1.3rem; }
   }
 </style>
 </head>
 <body>
 <div id="confetti"></div>
 
-<!-- ACCUEIL -->
 <div id="screen-home" class="screen active">
-  <header><h1>🐴 La course de Caramel</h1></header>
-  <p class="subtitle">Lis vite et bien pour battre Zip le papillon !</p>
+  <header><h1 id="app-title">🐴 La course de Caramel</h1></header>
   <p id="engine-status"></p>
-  <p id="total-stars">⭐ 0</p>
+  <p id="wallet">⭐ 0 · 🍎 0 · 🔥 0 j</p>
+
+  <div class="pet-card">
+    <div id="pet-stage" onclick="petTap(event)">
+      <span class="pet-sun">☀️</span><span class="pet-cloud">☁️</span>
+      <div id="pet-holder"></div>
+    </div>
+    <p id="pet-mood"></p>
+    <div class="gauges">
+      <div class="gauge g-faim"><div class="glbl">🍎 Faim</div><div class="gbar"><div class="gfill" id="g-faim"></div></div></div>
+      <div class="gauge g-forme"><div class="glbl">🎾 Forme</div><div class="gbar"><div class="gfill" id="g-forme"></div></div></div>
+      <div class="gauge g-joie"><div class="glbl">💛 Joie</div><div class="gbar"><div class="gfill" id="g-joie"></div></div></div>
+    </div>
+    <div class="pet-actions">
+      <button class="pact" onclick="togglePanel('panel-food')">🥕 Nourrir</button>
+      <button class="pact" onclick="brushPet()">🪮 Brosser</button>
+      <button class="pact" onclick="walkPet()">🚶 Promener</button>
+      <button class="pact" onclick="togglePanel('panel-shop')">🛍️ Boutique</button>
+      <button class="pact" onclick="togglePanel('panel-settings')">⚙️ Réglages</button>
+    </div>
+    <div class="panel" id="panel-food">
+      <h3>🥕 Le garde-manger</h3>
+      <div class="shop-grid" id="food-grid"></div>
+    </div>
+    <div class="panel" id="panel-shop">
+      <h3>🛍️ La boutique — habille ton compagnon !</h3>
+      <div class="shop-grid" id="shop-grid"></div>
+      <h3 style="margin-top:10px">🐎 Montures</h3>
+      <div class="shop-grid" id="mount-grid"></div>
+    </div>
+    <div class="panel" id="panel-settings">
+      <h3>⚙️ Réglages</h3>
+      <div class="set-row"><label>Prénom du héros</label>
+        <input type="text" id="set-hero" maxlength="14"></div>
+      <div class="set-row"><label>Le héros est</label>
+        <span class="seg"><button id="seg-f" onclick="setGender('f')">une fille</button><button id="seg-m" onclick="setGender('m')">un garçon</button></span></div>
+      <div class="set-row"><label>Nom du compagnon</label>
+        <input type="text" id="set-mount" maxlength="14"></div>
+      <button class="btn-mini" onclick="saveSettings()">✓ Enregistrer</button>
+    </div>
+  </div>
+
   <div class="notif-card" id="notif-card">
-    <span>🔔 Un petit rappel de Caramel chaque jour ?</span>
+    <span>🔔 Un petit rappel chaque jour ?</span>
     <button class="btn-mini" onclick="enableNotifs()">Activer</button>
     <button class="btn-mini ghost" onclick="dismissNotifs()">Plus tard</button>
   </div>
@@ -198,11 +268,9 @@
   <div class="warn" id="compat-warn"></div>
 </div>
 
-<!-- COURSE / LECTURE -->
 <div id="screen-read" class="screen">
   <button class="back" onclick="stopAll(); show('screen-home'); renderHome();">← Retour</button>
   <div class="story-head" id="read-title"></div>
-
   <div class="control-bar">
     <button id="btn-mic" onclick="micTap()">🎤</button>
     <div class="control-txt">
@@ -210,11 +278,10 @@
       <p id="heard"></p>
     </div>
   </div>
-
   <div class="track">
     <span id="fly">🦋</span>
     <span id="spark">✨</span>
-    <span id="pony">🐴</span>
+    <span id="pony"></span>
     <span class="finish">🏁</span>
   </div>
   <div class="race-info">
@@ -222,16 +289,15 @@
     <span id="timer">⏱ 0 s</span>
     <button class="quit" id="btn-quit" onclick="finishExercise()" style="display:none">J'ai fini ✓</button>
   </div>
-
   <div id="text-display"></div>
 </div>
 
-<!-- RÉSULTATS -->
 <div id="screen-results" class="screen">
   <div class="results-box">
     <div class="big-stars" id="res-stars"></div>
     <p id="res-message"></p>
     <p id="res-race"></p>
+    <p id="res-apples"></p>
     <div class="stat-grid">
       <div class="rstat"><div class="rval" id="res-mclm">–</div><div class="rlbl">mots / minute</div></div>
       <div class="rstat"><div class="rval" id="res-prec">–</div><div class="rlbl">précision</div></div>
@@ -254,105 +320,541 @@ const LINKEDIN_PROFILE = 'https://www.linkedin.com/in/cedric-delalande-57bb7860/
 /* TODO : remplacer par l'URL du post LinkedIn dès sa publication */
 const FEEDBACK_URL = LINKEDIN_PROFILE;
 
+/* ============ MONTURES / NOURRITURE / BOUTIQUE ============ */
+const MOUNTS = {
+  pony:    { em:'🐴', label:'Poney',   noun:'poney',   g:'m', price:0,   body:'#c8863f', mane:'#8a5a2b', belly:'#e9c391' },
+  unicorn: { em:'🦄', label:'Licorne', noun:'licorne', g:'f', price:150, body:'#f6f0ff', mane:'#f472b6', belly:'#ffffff' },
+  dragon:  { em:'🐉', label:'Dragon',  noun:'dragon',  g:'m', price:150, body:'#4caf7d', mane:'#166534', belly:'#bbf7d0' }
+};
+const FOODS = [
+  { id:'carotte', e:'🥕', name:'Carotte', price:5,  faim:15, joie:0 },
+  { id:'pomme',   e:'🍎', name:'Pomme',   price:10, faim:30, joie:5 },
+  { id:'tarte',   e:'🥧', name:'Tarte',   price:25, faim:70, joie:12 }
+];
+const SHOP = [
+  { id:'foulard',  e:'🧣', name:'Foulard',      price:30,  slot:'neck' },
+  { id:'noeud',    e:'🎀', name:'Nœud',         price:30,  slot:'tail' },
+  { id:'chapeau',  e:'👒', name:'Chapeau',      price:50,  slot:'head' },
+  { id:'lunettes', e:'🕶️', name:'Lunettes',    price:50,  slot:'face' },
+  { id:'echarpe',  e:'🌈', name:'Écharpe',      price:80,  slot:'neck' },
+  { id:'selle',    e:'🏵️', name:'Selle dorée', price:80,  slot:'back' },
+  { id:'couronne', e:'👑', name:'Couronne',     price:120, slot:'head' },
+  { id:'ailes',    e:'🦋', name:'Ailes de fée', price:150, slot:'wings' }
+];
+
 /* ============ HISTOIRES (sans apostrophes ni traits d'union : contrainte reco vocale) ============
-   need = étoiles requises pour débloquer · theme = décor de la piste */
+   need = étoiles requises pour débloquer · theme = décor de la piste
+   Tokens de template : {P} héros · {N} compagnon · {leM}/{LeM}/{sonM}/{SonM}/{duM} · {ilM}/{IlM}
+   {El}/{el}/{fiere} (genre héros) · {contentM}{surprisM}{legerM}{rassureM}{fascineM} (genre monture) */
 const STORIES = [
-  { id:'pomme', emoji:'🍎', title:'Caramel le poney', target:40, need:0, best:0,
+  /* ---------- CE1 · Premiers galops (need:0) ---------- */
+  { id:'ce1-carotte', emoji:'🥕', title:'La carotte du matin', target:30, need:0, best:0,
+    theme:{ sky:['#7dd3fc','#bae6fd'], ground:['#86efac','#4ade80'], obstacle:'🌿',
+      decos:[{e:'☀️',x:88,top:5,s:1.6},{e:'🏡',x:8,top:16,s:1.9},{e:'🐔',x:64,bot:5,s:1},{e:'🥕',x:34,bot:6,s:.9}] },
+    text:"{P} ouvre la grande porte de la ferme. {SonM} {N} attend près du pré. {El} lui donne une carotte orange. {N} croque la carotte très fort. {IlM} est {contentM}. Ensuite, ils partent jouer dans le pré vert." },
+  { id:'ce1-bain', emoji:'🛁', title:'Le grand bain', target:33, need:0, best:0,
+    theme:{ sky:['#bae6fd','#e0f2fe'], ground:['#86efac','#4ade80'], obstacle:'🫧',
+      decos:[{e:'☀️',x:88,top:5,s:1.5},{e:'🫧',top:10,s:1.1,drift:26},{e:'🪣',x:70,bot:5,s:1.1},{e:'💦',x:22,top:24,s:1}] },
+    text:"Ce matin, {N} est plein de boue. {P} prépare un grand bain tiède. {El} frotte le dos, les jambes et la tête. {N} secoue tout son corps et envoie des gouttes partout ! {P} rit très fort. Maintenant, {leM} est tout propre et tout doux." },
+  { id:'ce1-verger', emoji:'🍏', title:'Les pommes du verger', target:36, need:0, best:0,
+    theme:{ sky:['#93c5fd','#bfdbfe'], ground:['#86efac','#22c55e'], obstacle:'🍏',
+      decos:[{e:'🌳',x:10,top:18,s:2},{e:'🌳',x:80,top:20,s:1.8},{e:'🍏',x:46,top:26,s:1},{e:'🐝',top:12,s:1,drift:28}] },
+    text:"{P} et {N} vont au verger. Les pommes vertes brillent en haut du grand arbre. {N} tend le cou, mais elles sont trop hautes. Alors {P} grimpe sur son dos et attrape trois belles pommes. Ils partagent le goûter, assis sous le soleil doux." },
+  { id:'ce1-nuit', emoji:'🌙', title:'Bonne nuit', target:39, need:0, best:0,
+    theme:{ sky:['#312e81','#4c1d95'], ground:['#14532d','#052e16'], obstacle:'⭐',
+      decos:[{e:'🌕',x:86,top:6,s:1.6},{e:'⭐',x:20,top:10,s:1},{e:'⭐',x:50,top:16,s:.8},{e:'🦉',x:8,top:22,s:1.2}] },
+    text:"La nuit tombe doucement sur la ferme. {N} rentre dans son abri de paille bien chaude. {P} lui raconte une petite histoire de pirates et de trésors. {LeM} ferme les yeux tranquillement. Dehors, la lune ronde veille sur eux. Bonne nuit, {N} !" },
+  { id:'ce1-flaque', emoji:'💦', title:'La flaque géante', target:42, need:0, best:0,
+    theme:{ sky:['#cbd5e1','#e2e8f0'], ground:['#86efac','#4ade80'], obstacle:'💧',
+      decos:[{e:'🌧️',x:12,top:6,s:1.3},{e:'☁️',top:8,s:1.4,drift:36},{e:'💧',x:42,top:24,s:1},{e:'🌈',x:72,top:8,s:1.6}] },
+    text:"Il a plu toute la nuit. Une flaque géante brille au milieu du chemin. {N} saute dedans à pieds joints ! {P} reçoit plein de gouttes fraîches et rit aux éclats. Alors ils sautent encore, encore et encore, de plus en plus haut. Quelle belle journée !" },
+  { id:'ce1-cadeau', emoji:'🎁', title:'La surprise', target:45, need:0, best:0,
+    theme:{ sky:['#fbcfe8','#fce7f3'], ground:['#bbf7d0','#86efac'], obstacle:'🎁',
+      decos:[{e:'🎈',x:10,top:8,s:1.2},{e:'🎉',x:50,top:6,s:1},{e:'🎀',x:80,top:12,s:1.1},{e:'🌼',x:30,bot:5,s:.9}] },
+    text:"Ce matin, une surprise attend {N} : un gros cadeau rouge est posé sur la paille. {P} tire sur le ruban doré. Dedans, il y a une couverture toute douce et un sac de carottes ! {N} fait un petit saut de joie. Quel beau jour de fête pour toute la ferme !" },
+
+  /* ---------- CE2 (textes v10 retrofités avec les tokens) ---------- */
+  { id:'pomme', emoji:'🍎', title:'{N} {leM}', target:40, need:0, best:0,
     theme:{ sky:['#7dd3fc','#bae6fd'], ground:['#86efac','#4ade80'], obstacle:'🌿',
       decos:[{e:'☀️',x:88,top:5,s:1.6},{e:'☁️',top:6,s:1.4,drift:38},{e:'☁️',top:20,s:1.1,drift:55},{e:'🌼',x:8,bot:6,s:1},{e:'🌻',x:68,bot:5,s:1.1}] },
-    text:"Léa arrive à la ferme ce matin. Son poney Caramel attend près de la barrière. Elle le brosse doucement et lui donne une pomme bien rouge. Caramel remue la queue car il est content. Ensuite, Léa pose la selle et met son casque pour la promenade." },
+    text:"{P} arrive à la ferme ce matin. {SonM} {N} attend près de la barrière. {El} brosse {sonM} doucement et lui donne une pomme bien rouge. {N} remue la queue car {ilM} est {contentM}. Ensuite, {P} pose la selle et met son casque pour la promenade." },
   { id:'foret', emoji:'🌳', title:'Promenade en forêt', target:44, need:0, best:0,
     theme:{ sky:['#93c5fd','#bfdbfe'], ground:['#4ade80','#16a34a'], obstacle:'🌿',
       decos:[{e:'🌳',x:6,top:24,s:1.9},{e:'🌲',x:84,top:22,s:1.9},{e:'🐦',top:10,s:1,drift:30},{e:'🍄',x:58,bot:5,s:.9}] },
-    text:"Ce matin, Léa monte sur Caramel pour une balade dans la forêt. Les oiseaux chantent et les feuilles dansent avec le vent. Le poney trotte sur le petit chemin plein de fleurs. Soudain, un lapin gris traverse devant eux. Caramel reste très calme et Léa le félicite avec une caresse." },
-  { id:'cirque', emoji:'🎪', title:'Caramel au cirque', target:48, need:0, best:0,
+    text:"Ce matin, {P} monte sur {N} pour une balade dans la forêt. Les oiseaux chantent et les feuilles dansent avec le vent. {LeM} trotte sur le petit chemin plein de fleurs. Soudain, un lapin gris traverse devant eux. {N} reste très calme et {P} félicite {sonM} avec une caresse." },
+  { id:'cirque', emoji:'🎪', title:'{N} au cirque', target:48, need:0, best:0,
     theme:{ sky:['#fecdd3','#fde68a'], ground:['#fcd34d','#f59e0b'], obstacle:'🎈',
       decos:[{e:'🎪',x:78,top:16,s:2.2},{e:'🎈',x:10,top:8,s:1.2},{e:'⭐',x:32,top:12,s:1},{e:'🎉',x:55,top:6,s:1}] },
-    text:"Ce samedi, un cirque arrive au village avec des lumières partout. Caramel regarde les acrobates qui volent sous le grand chapiteau rouge. Un clown rigolo lui offre un ballon jaune. Le poney salue le public avec une belle révérence, et tout le monde applaudit très fort. Léa est fière de son artiste préféré." },
-  { id:'plage', emoji:'🏖️', title:'Caramel à la plage', target:50, need:2, best:0,
+    text:"Ce samedi, un cirque arrive au village avec des lumières partout. {N} regarde les acrobates qui volent sous le grand chapiteau rouge. Un clown rigolo lui offre un ballon jaune. {LeM} salue le public avec une belle révérence, et tout le monde applaudit très fort. {P} est {fiere} de {sonM}, une vraie star du cirque !" },
+  { id:'plage', emoji:'🏖️', title:'{N} à la plage', target:50, need:2, best:0,
     theme:{ sky:['#7dd3fc','#e0f2fe'], ground:['#fde68a','#fbbf24'], obstacle:'🌊',
       decos:[{e:'☀️',x:88,top:5,s:1.6},{e:'⛵',top:22,s:1.2,drift:45},{e:'⛱️',x:8,top:28,s:1.7},{e:'🐚',x:60,bot:5,s:.9}] },
-    text:"Cet été, Léa emmène Caramel voir la mer pour la première fois. Le poney pose un sabot sur le sable chaud, puis il recule, tout surpris. Une vague douce vient chatouiller ses jambes. Léa rit très fort. Ensemble, ils galopent le long de la plage, et le vent salé décoiffe la crinière de Caramel." },
+    text:"Cet été, {P} emmène {N} voir la mer pour la première fois. {LeM} pose une patte sur le sable chaud, puis {ilM} recule, {surprisM}. Une vague douce vient chatouiller ses jambes. {P} rit très fort. Ensemble, ils galopent le long de la plage, et le vent salé les décoiffe tous les deux." },
   { id:'feuilles', emoji:'🍂', title:'La tempête de feuilles', target:52, need:4, best:0,
     theme:{ sky:['#fed7aa','#ffedd5'], ground:['#bef264','#84cc16'], obstacle:'🍁',
       decos:[{e:'🌳',x:82,top:20,s:2},{e:'🍁',top:8,s:1.1,drift:20},{e:'🍂',top:18,s:1,drift:28},{e:'🍂',x:14,bot:6,s:.9}] },
-    text:"Cet automne, le vent souffle fort sur la ferme. Des feuilles rouges et dorées tourbillonnent dans le pré. Caramel court après elles et saute pour les attraper. Léa ramasse un gros tas de feuilles, puis le poney plonge dedans, tout content. Ils jouent ainsi tout le reste de la journée." },
+    text:"Cet automne, le vent souffle fort sur la ferme. Des feuilles rouges et dorées tourbillonnent dans le pré. {N} court après elles et saute pour les attraper. {P} ramasse un gros tas de feuilles, puis {leM} plonge dedans, très {contentM}. Ils jouent ainsi tout le reste de la journée." },
   { id:'concours', emoji:'🏆', title:'Le grand concours', target:54, need:6, best:0,
     theme:{ sky:['#7dd3fc','#bae6fd'], ground:['#86efac','#22c55e'], obstacle:'🌿',
       decos:[{e:'🚩',x:6,top:24,s:1.5},{e:'🚩',x:88,top:24,s:1.5},{e:'🏟️',x:44,top:8,s:1.4},{e:'👏',x:24,top:10,s:1}] },
-    text:"Dimanche, le grand jour arrive enfin : le concours du club. Léa respire un grand coup, elle a un peu peur. Caramel avance vers le premier obstacle et saute très haut. Le public applaudit fort. À la fin du parcours, Léa reçoit un joli ruban bleu. Elle serre son poney dans ses bras car ils forment une belle équipe." },
-  { id:'tresor', emoji:'🗺️', title:'Le trésor du poney pirate', target:58, need:8, best:0,
+    text:"Dimanche, le grand jour arrive enfin : le concours du club. {P} respire un grand coup, {el} a un peu peur. {N} avance vers le premier obstacle et saute très haut. Le public applaudit fort. À la fin du parcours, {P} reçoit un joli ruban bleu. {El} serre {sonM} dans ses bras car ils forment une belle équipe." },
+  { id:'tresor', emoji:'🗺️', title:'Le trésor {duM} pirate', target:58, need:8, best:0,
     theme:{ sky:['#93c5fd','#bfdbfe'], ground:['#fde68a','#f59e0b'], obstacle:'💰',
       decos:[{e:'🏴‍☠️',x:6,top:14,s:1.7},{e:'🦜',top:10,s:1.2,drift:26},{e:'⚓',x:84,bot:6,s:1.2},{e:'🌴',x:72,top:18,s:1.9}] },
-    text:"Un matin, Léa trouve une vieille carte au fond de la grange. Elle montre un trésor caché près du grand chêne. Caramel porte un foulard rouge, comme un vrai pirate. Ils suivent le chemin, passent le pont de bois et comptent dix pas. Sous la terre, ils découvrent un coffre rempli de pommes dorées !" },
+    text:"Un matin, {P} trouve une vieille carte au fond de la grange. Elle montre un trésor caché près du grand chêne. {N} porte un foulard rouge, comme un vrai pirate. Ils suivent le chemin, passent le pont de bois et comptent dix pas. Sous la terre, ils découvrent un coffre rempli de pommes dorées !" },
   { id:'pluie', emoji:'🌈', title:'Après la pluie', target:60, need:10, best:0,
     theme:{ sky:['#cbd5e1','#e2e8f0'], ground:['#86efac','#4ade80'], obstacle:'🐸',
       decos:[{e:'🌈',x:58,top:6,s:2.4},{e:'☁️',top:5,s:1.5,drift:40},{e:'💧',x:20,top:26,s:1},{e:'🌷',x:10,bot:5,s:1}] },
-    text:"La pluie tambourine sur le toit de la grange depuis ce matin. Caramel attend, le nez collé à la fenêtre. Enfin, le soleil revient et un arc de couleurs géant traverse le ciel. Léa monte en selle, et ils partent chercher le bout du fameux arc. Ils ne le trouvent pas, mais ils découvrent une mare pleine de grenouilles rigolotes." },
+    text:"La pluie tambourine sur le toit de la grange depuis ce matin. {N} attend, le nez collé à la fenêtre. Enfin, le soleil revient et un arc de couleurs géant traverse le ciel. {P} monte en selle, et ils partent chercher le bout du fameux arc. Ils ne le trouvent pas, mais ils découvrent une mare pleine de grenouilles rigolotes." },
   { id:'neige', emoji:'❄️', title:'La neige magique', target:62, need:12, best:0,
     theme:{ sky:['#e0f2fe','#f8fafc'], ground:['#f1f5f9','#cbd5e1'], obstacle:'❄️',
       decos:[{e:'⛄',x:82,bot:6,s:1.8},{e:'❄️',top:8,s:1,drift:24},{e:'❄️',top:22,s:1.2,drift:36},{e:'🌨️',x:10,top:6,s:1.3}] },
-    text:"Ce matin, la ferme est toute blanche. La neige tombe doucement du ciel gris. Caramel souffle des petits nuages de vapeur avec son nez. Léa lance une boule de neige, et le poney saute pour la toucher du bout du museau. Ensuite, ils dessinent des traces rigolotes dans la poudre blanche, puis ils rentrent bien au chaud." },
+    text:"Ce matin, la ferme est toute blanche. La neige tombe doucement du ciel gris. {N} souffle des petits nuages de vapeur avec son nez. {P} lance une boule de neige, et {leM} saute pour la toucher du bout du museau. Ensuite, ils dessinent des traces rigolotes dans la poudre blanche, puis ils rentrent bien au chaud." },
   { id:'montagne', emoji:'⛰️', title:'Le sommet de la montagne', target:64, need:15, best:0,
     theme:{ sky:['#bfdbfe','#dbeafe'], ground:['#d6d3d1','#a8a29e'], obstacle:'🪨',
       decos:[{e:'🏔️',x:8,top:10,s:2.2},{e:'⛰️',x:68,top:14,s:2},{e:'🦅',top:8,s:1.2,drift:30},{e:'🌲',x:44,top:28,s:1.3}] },
-    text:"Cet hiver, Léa et Caramel partent en randonnée vers la grande montagne. Le sentier monte, tourne, et devient de plus en plus raide. Le poney avance à petits pas prudents entre les rochers gris. Tout en haut, la vue est magnifique : les maisons du village ressemblent à des jouets minuscules. Léa crie de joie, et la montagne répond en écho." },
+    text:"Cet hiver, {P} et {N} partent en randonnée vers la grande montagne. Le sentier monte, tourne, et devient de plus en plus raide. {LeM} avance à petits pas prudents entre les rochers gris. Tout en haut, la vue est magnifique : les maisons du village ressemblent à des jouets minuscules. {P} crie de joie, et la montagne répond en écho." },
   { id:'fee', emoji:'🧚', title:'La fée des chevaux', target:66, need:18, best:0,
     theme:{ sky:['#c4b5fd','#e9d5ff'], ground:['#86efac','#4ade80'], obstacle:'🌸',
       decos:[{e:'🌙',x:86,top:6,s:1.6},{e:'✨',x:20,top:12,s:1.1},{e:'⭐',x:46,top:8,s:1},{e:'🦋',top:20,s:1,drift:34}] },
-    text:"Cette nuit, une fée entre sans bruit dans la petite écurie. Elle touche la crinière de Caramel avec sa baguette magique. Le poney brille comme une étoile et des ailes dorées poussent sur son dos. Il vole très haut dans le ciel plein de nuages roses. Au matin, Léa trouve une plume dorée posée sur la paille." },
+    text:"Cette nuit, une fée entre sans bruit dans la petite écurie. Elle touche la tête de {N} avec sa baguette magique. {LeM} brille comme une étoile et des ailes dorées poussent sur son dos. {IlM} vole très haut dans le ciel plein de nuages roses. Au matin, {P} trouve une plume dorée posée sur la paille." },
   { id:'poulain', emoji:'🐣', title:'Le petit poulain', target:68, need:21, best:0,
     theme:{ sky:['#fbcfe8','#fce7f3'], ground:['#bbf7d0','#86efac'], obstacle:'🌼',
       decos:[{e:'☀️',x:88,top:5,s:1.5},{e:'🌷',x:10,bot:5,s:1.1},{e:'🌼',x:68,bot:6,s:1},{e:'🦋',top:14,s:1,drift:30}] },
-    text:"Une grande nouvelle attend Léa à la ferme : un poulain est né cette nuit ! Il tient à peine sur ses longues jambes fragiles. Caramel le pousse doucement du museau pour le rassurer. Le bébé fait trois pas, tombe sur la paille, puis se relève courageusement. Léa lui choisit un joli nom : Noisette." },
+    text:"Une grande nouvelle attend {P} à la ferme : un poulain est né cette nuit ! Il tient à peine sur ses longues jambes fragiles. {N} le pousse doucement du museau pour le rassurer. Le bébé fait trois pas, tombe sur la paille, puis se relève courageusement. {P} lui choisit un joli nom : Noisette." },
   { id:'dragon', emoji:'🐉', title:'Le dragon gentil', target:70, need:24, best:0,
     theme:{ sky:['#a7f3d0','#d1fae5'], ground:['#4ade80','#15803d'], obstacle:'🔥',
       decos:[{e:'🌲',x:6,top:18,s:2},{e:'🌲',x:84,top:20,s:1.8},{e:'✨',x:50,top:10,s:1},{e:'🍎',x:64,bot:5,s:.9}] },
-    text:"Au fond de la forêt vit un petit dragon vert nommé Pistache. Il est triste car tout le monde a peur de lui. Caramel avance doucement et lui offre une pomme. Le dragon sourit, et une petite flamme de joie sort de son nez. Depuis ce jour, Pistache garde la ferme la nuit, et il réchauffe la paille en hiver." },
+    text:"Au fond de la forêt vit un petit dragon vert nommé Pistache. Il est triste car tout le monde a peur de lui. {N} avance doucement et lui offre une pomme. Le dragon sourit, et une petite flamme de joie sort de son nez. Depuis ce jour, Pistache garde la ferme la nuit, et il réchauffe la paille en hiver." },
   { id:'etoiles', emoji:'🌠', title:'La nuit des étoiles', target:74, need:27, best:0,
     theme:{ sky:['#1e3a8a','#312e81'], ground:['#14532d','#052e16'], obstacle:'⭐',
       decos:[{e:'🌙',x:86,top:6,s:1.7},{e:'⭐',x:15,top:10,s:1},{e:'⭐',x:40,top:18,s:.8},{e:'🌠',top:8,s:1.3,drift:18},{e:'⭐',x:64,top:6,s:1.1}] },
-    text:"Ce soir, Léa installe une grande couverture dans le pré, tout près de Caramel. Le ciel est rempli de milliers de points brillants. Soudain, une étoile filante traverse la nuit comme une flèche de lumière. Léa ferme les yeux et fait un vœu secret. Le poney pose sa tête douce contre son épaule. Ensemble, ils comptent les étoiles très tard dans la nuit." },
+    text:"Ce soir, {P} installe une grande couverture dans le pré, tout près de {N}. Le ciel est rempli de milliers de points brillants. Soudain, une étoile filante traverse la nuit comme une flèche de lumière. {P} ferme les yeux et fait un vœu secret. {LeM} pose sa tête douce contre son épaule. Ensemble, ils comptent les étoiles très tard dans la nuit." },
   { id:'reve', emoji:'🚀', title:'Un rêve dans les nuages', target:78, need:30, best:0,
     theme:{ sky:['#312e81','#6d28d9'], ground:['#ede9fe','#c4b5fd'], obstacle:'🪐',
       decos:[{e:'🪐',x:12,top:10,s:1.6},{e:'🌟',x:44,top:6,s:1.2},{e:'☄️',top:12,s:1.3,drift:16},{e:'🌙',x:82,top:8,s:1.5}] },
-    text:"Cette nuit, Caramel fait un rêve extraordinaire. Il porte un casque brillant et flotte doucement au milieu des planètes colorées. Les étoiles dansent autour de lui comme des lucioles géantes. Il rebondit sur la lune, léger comme une plume, et salue une comète pressée. Au réveil, le poney observe longtemps le ciel du matin, comme pour garder un morceau de son rêve." }
+    text:"Cette nuit, {N} fait un rêve extraordinaire. {IlM} porte un casque brillant et flotte doucement au milieu des planètes colorées. Les étoiles dansent tout autour comme des lucioles géantes. {IlM} rebondit sur la lune, {legerM} comme une plume, et salue une comète pressée. Au réveil, {leM} observe longtemps le ciel du matin, comme pour garder un morceau de son rêve." },
+
+  /* ---------- CM1 · Cavalier émérite ---------- */
+  { id:'cm1-orage', emoji:'⛈️', title:'La nuit de la tempête', target:72, need:33, best:0,
+    theme:{ sky:['#475569','#64748b'], ground:['#365314','#1a2e05'], obstacle:'⚡',
+      decos:[{e:'⛈️',x:14,top:6,s:1.6},{e:'☁️',top:10,s:1.5,drift:22},{e:'🌧️',x:60,top:12,s:1.3},{e:'🌾',x:8,bot:5,s:1}] },
+    text:"Depuis le matin, de gros nuages sombres roulent dans le ciel de la ferme. Le vent se lève, les volets claquent, et les poules courent se cacher dans leur abri. {P} décide de rentrer {N} avant la pluie. Soudain, un éclair déchire le ciel et le tonnerre gronde comme un tambour géant. {LeM} tremble un peu, alors {P} pose une main douce sur son cou et lui parle calmement. Ensemble, ils traversent la cour sous les premières gouttes. Dans la grange, bien au sec, ils écoutent la pluie danser sur le toit. {N} pose sa tête contre {P}, {rassureM}, et la tempête devient presque une musique." },
+  { id:'cm1-course', emoji:'🏇', title:'La course des collines', target:78, need:37, best:0,
+    theme:{ sky:['#7dd3fc','#bae6fd'], ground:['#fde047','#eab308'], obstacle:'🌾',
+      decos:[{e:'🚩',x:8,top:22,s:1.4},{e:'🚩',x:88,top:22,s:1.4},{e:'⛅',top:8,s:1.3,drift:34},{e:'🌾',x:42,bot:5,s:1}] },
+    text:"Ce dimanche, tout le village se retrouve pour la grande course des collines. Des cavaliers venus de partout ajustent leurs casques et vérifient leurs selles. Au signal, {N} bondit comme une flèche. Le chemin monte entre les champs dorés, plonge dans un petit bois, puis longe la rivière qui scintille. {P} se penche en avant et encourage {sonM} de la voix. Dans le dernier virage, ils dépassent deux concurrents étonnés. La ligne est là, toute proche. Un dernier effort, un grand saut final, et ils franchissent la ligne les premiers ! La foule applaudit longtemps, et {N} salue avec panache." },
+  { id:'cm1-chouette', emoji:'🦉', title:'La chouette blanche', target:84, need:41, best:0,
+    theme:{ sky:['#1e293b','#334155'], ground:['#14532d','#052e16'], obstacle:'🌿',
+      decos:[{e:'🦉',x:78,top:14,s:1.6},{e:'🌲',x:8,top:18,s:2},{e:'🌲',x:30,top:22,s:1.6},{e:'🌕',x:60,top:6,s:1.2}] },
+    text:"Un soir, {P} rentre tard par le sentier de la forêt. La lumière baisse, les ombres des arbres deviennent longues et mystérieuses. Une chouette blanche se pose alors sur une branche basse et hulule doucement, comme pour dire bonjour. Chaque fois que {leM} avance, la chouette vole un peu plus loin et attend. {P} comprend que la chouette montre le chemin. Ils suivent leur guide entre les fougères, passent un vieux tronc couché, et retrouvent enfin la lumière chaude de la ferme. Avant de partir, la chouette fait trois grands cercles dans le ciel étoilé. {P} promet de revenir la saluer, et {N} hoche la tête, comme pour promettre aussi." },
+  { id:'cm1-riviere', emoji:'🌉', title:'La rivière en colère', target:90, need:45, best:0,
+    theme:{ sky:['#bfdbfe','#dbeafe'], ground:['#60a5fa','#2563eb'], obstacle:'🪨',
+      decos:[{e:'🌉',x:12,top:16,s:1.8},{e:'🌊',top:26,s:1.1,drift:30},{e:'🪨',x:70,bot:6,s:1},{e:'🌲',x:88,top:20,s:1.5}] },
+    text:"Au printemps, la rivière déborde et emporte le petit pont de bois. De ce côté, impossible de rejoindre le village pour la fête. {P} observe le courant, réfléchit, puis remarque un endroit où la rivière devient large et peu profonde. Prudemment, {N} entre dans la rivière fraîche, un pas après un autre. Les cailloux roulent sous ses pattes, mais {ilM} garde son calme et son équilibre. Au milieu, le courant pousse plus fort, alors {P} serre les jambes et garde le cap. Ils atteignent enfin la rive opposée, avec une grande fierté. Au village, tout le monde applaudit les héros du jour, et la fête peut commencer." },
+  { id:'cm1-phare', emoji:'🗼', title:'La lumière du phare', target:95, need:50, best:0,
+    theme:{ sky:['#fda4af','#fecdd3'], ground:['#fde68a','#fbbf24'], obstacle:'🌊',
+      decos:[{e:'🗼',x:84,top:8,s:2},{e:'⛵',top:22,s:1.2,drift:40},{e:'🌅',x:10,top:8,s:1.5},{e:'🐚',x:40,bot:5,s:.9}] },
+    text:"Cet été, {P} et {N} découvrent un vieux phare posé au bout de la falaise. Le gardien, un vieil homme au sourire doux, raconte que la lampe ne fonctionne plus depuis des semaines. Or, ce soir, un bateau de pêcheurs doit rentrer au port dans la nuit noire. {P} propose son aide aussitôt. Ils montent ensemble le grand escalier en colimaçon, portent la nouvelle ampoule, et resserrent chaque vis avec patience. Quand la nuit tombe, une immense lumière balaie enfin la mer. Au loin, le bateau répond par trois coups de corne joyeux. Le gardien serre la main de {P}, caresse doucement {N}, et leur offre le plus beau des mercis : un coucher de soleil depuis le sommet du phare." },
+  { id:'cm1-aurore', emoji:'🌌', title:'Les lumières du nord', target:100, need:55, best:0,
+    theme:{ sky:['#0f172a','#1e1b4b'], ground:['#f1f5f9','#cbd5e1'], obstacle:'❄️',
+      decos:[{e:'🌌',x:20,top:6,s:1.6},{e:'⭐',x:60,top:10,s:1},{e:'🌠',top:8,s:1.2,drift:18},{e:'❄️',x:80,top:20,s:1}] },
+    text:"Une légende raconte que, une nuit par an, le ciel du nord se remplit de couleurs dansantes. Cette nuit est arrivée. {P} prépare deux couvertures chaudes, un thermos de chocolat, et guide {N} vers le sommet de la colline. Le froid pique les joues, mais le spectacle mérite chaque pas. Vers minuit, un premier ruban vert ondule entre les étoiles, puis un voile rose, puis un fleuve violet qui traverse tout le ciel. {N} lève la tête, {fascineM}, les yeux remplis de lumière. {P} murmure que certaines merveilles se méritent avec de la patience. Ils restent là longtemps, dans un silence heureux, pendant que le ciel peint pour eux le plus beau tableau du monde." }
 ];
 const LEVELS = [
-  { name:'Niveau 1 · Petit trot 🌱', from:0, to:4 },
-  { name:'Niveau 2 · Grand galop 🐎', from:5, to:9 },
-  { name:'Niveau 3 · Champion 🏆', from:10, to:14 }
+  { name:'CE1 · Premiers galops 🐣', from:0,  to:5 },
+  { name:'CE2 · Petit trot 🌱',      from:6,  to:10 },
+  { name:'CE2 · Grand galop 🐎',     from:11, to:15 },
+  { name:'CE2 · Champion 🏆',        from:16, to:20 },
+  { name:'CM1 · Cavalier émérite 🎖️', from:21, to:26 }
 ];
-const PACE_LABEL = t => t<=48 ? '🦋 lent' : t<=58 ? '🦋 moyen' : t<=68 ? '🦋 rapide' : '🦋 très rapide';
+const PACE_LABEL = t => t<=45 ? '🦋 lent' : t<=60 ? '🦋 moyen' : t<=75 ? '🦋 rapide' : t<=88 ? '🦋 très rapide' : '🦋 éclair';
 
 /* mots-outils courts que la reco avale souvent : on les pardonne quand la suite est bonne */
 const FORGIVE = new Set(['le','la','les','un','une','des','de','du','au','aux','et','en','y','a',
                          'ce','se','sa','son','ses','ne','que','qui','il','ils','elle','ou']);
 
-/* ============ SAUVEGARDE LOCALE ============ */
-const SAVE_KEY = 'caramel-progress-v1';
-function loadProgress(){
-  try{
-    const j = JSON.parse(localStorage.getItem(SAVE_KEY) || '{}');
-    if(j && j.stars) STORIES.forEach(s=>{ if(j.stars[s.id]) s.best = Math.min(3, j.stars[s.id]|0); });
-  }catch(_){}
+/* ============ SAUVEGARDE v2 + MIGRATION ============ */
+const SAVE_KEY = 'caramel-save-v2';
+const OLD_SAVE_KEY = 'caramel-progress-v1';
+function defaultSave(){
+  return { stars:{}, apples:0, streak:{ count:0, last:'' },
+    hero:{ name:'Léa', g:'f' },
+    mount:{ type:'pony', name:'Caramel', owned:['pony'] },
+    equip:{ owned:[], worn:[] },
+    pet:{ faim:80, forme:80, joie:80, last:Date.now(), brushLast:0, walkDay:'' } };
 }
-function saveProgress(){
+let save = defaultSave();
+function loadSave(){
   try{
-    const stars = {};
-    STORIES.forEach(s=>{ if(s.best) stars[s.id] = s.best; });
-    localStorage.setItem(SAVE_KEY, JSON.stringify({ stars }));
+    const j = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null');
+    if(j && typeof j === 'object'){
+      const d = defaultSave();
+      save = {
+        stars: j.stars || {}, apples: Math.max(0, j.apples|0),
+        streak: Object.assign(d.streak, j.streak || {}),
+        hero: Object.assign(d.hero, j.hero || {}),
+        mount: Object.assign(d.mount, j.mount || {}),
+        equip: Object.assign(d.equip, j.equip || {}),
+        pet: Object.assign(d.pet, j.pet || {})
+      };
+      if(!Array.isArray(save.mount.owned) || !save.mount.owned.length) save.mount.owned = ['pony'];
+      if(!MOUNTS[save.mount.type]) save.mount.type = 'pony';
+    } else {
+      /* migration v1 → v2 : reprise des étoiles + rétro-crédit des pommes */
+      const old = JSON.parse(localStorage.getItem(OLD_SAVE_KEY) || 'null');
+      if(old && old.stars){
+        save.stars = old.stars;
+        const tot = Object.values(old.stars).reduce((a,b)=>a + Math.min(3, b|0), 0);
+        save.apples = tot * 10;
+      }
+      persist();
+    }
   }catch(_){}
+  STORIES.forEach(s=>{ if(save.stars[s.id]) s.best = Math.min(3, save.stars[s.id]|0); });
+}
+function persist(){
+  try{ localStorage.setItem(SAVE_KEY, JSON.stringify(save)); }catch(_){}
 }
 function resetProgress(){
-  if(!confirm('Tout recommencer ? Toutes les étoiles seront effacées.')) return;
-  try{ localStorage.removeItem(SAVE_KEY); }catch(_){}
+  if(!confirm('Tout recommencer ? Étoiles, pommes et compagnon seront effacés.')) return;
+  try{ localStorage.removeItem(SAVE_KEY); localStorage.removeItem(OLD_SAVE_KEY); }catch(_){}
+  save = defaultSave();
   STORIES.forEach(s=>s.best=0);
-  renderHome();
+  persist(); applyAppTitle(); renderPet(); renderHome();
 }
 function totalStars(){ return STORIES.reduce((a,s)=>a+s.best,0); }
 function isUnlocked(i){ return totalStars() >= STORIES[i].need; }
 
+/* ============ ÉCONOMIE 🍎 & STREAK ============ */
+function dayStr(d){
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+/* premier jour joué : +10 🍎 (+50 tous les 7 jours). Même jour → rien ; hier → +1 ; sinon → repart à 1 */
+function bumpStreak(){
+  const today = dayStr(new Date());
+  if(save.streak.last === today) return 0;
+  const y = new Date(); y.setDate(y.getDate()-1);
+  save.streak.count = (save.streak.last === dayStr(y)) ? save.streak.count + 1 : 1;
+  save.streak.last = today;
+  let bonus = 10;
+  if(save.streak.count % 7 === 0) bonus += 50;
+  save.apples += bonus;
+  return bonus;
+}
+function renderWallet(){
+  const w = document.getElementById('wallet');
+  if(w) w.textContent = '⭐ ' + totalStars() + ' / ' + (STORIES.length*3) +
+    ' · 🍎 ' + save.apples + ' · 🔥 ' + save.streak.count + ' j';
+}
+
+/* ============ TEMPLATE HÉROS / MONTURE ============ */
+function capFirst(s){ return s.charAt(0).toUpperCase() + s.slice(1); }
+function tplMap(){
+  const m = MOUNTS[save.mount.type] || MOUNTS.pony;
+  const mf = m.g === 'f';           /* genre de la monture (licorne = féminin) */
+  const hf = save.hero.g === 'f';   /* genre du héros */
+  const le = mf ? 'la' : 'le', son = mf ? 'sa' : 'son', du = mf ? 'de la' : 'du';
+  return {
+    P: save.hero.name, N: save.mount.name,
+    El: hf ? 'Elle' : 'Il', el: hf ? 'elle' : 'il', fiere: hf ? 'fière' : 'fier',
+    leM: le + ' ' + m.noun,  LeM: capFirst(le) + ' ' + m.noun,
+    sonM: son + ' ' + m.noun, SonM: capFirst(son) + ' ' + m.noun,
+    duM: du + ' ' + m.noun,
+    IlM: mf ? 'Elle' : 'Il', ilM: mf ? 'elle' : 'il',
+    contentM: mf ? 'contente' : 'content',
+    surprisM: mf ? 'surprise' : 'surpris',
+    legerM:   mf ? 'légère'   : 'léger',
+    rassureM: mf ? 'rassurée' : 'rassuré',
+    fascineM: mf ? 'fascinée' : 'fasciné'
+  };
+}
+function fillTemplate(str){
+  const map = tplMap();
+  return String(str).replace(/\{(\w+)\}/g, (all,k)=> map[k] !== undefined ? map[k] : all);
+}
+function sanitizeName(v, fallback){
+  const s = String(v||'').replace(/[{}]/g,'').trim().slice(0,14);
+  return s || fallback;
+}
+function applyAppTitle(){
+  const t = MOUNTS[save.mount.type].em + ' La course de ' + save.mount.name;
+  const h = document.getElementById('app-title');
+  if(h) h.textContent = t;
+  document.title = t;
+}
+
+/* ============ COMPAGNON : SVG GÉNÉRÉ ============ */
+function mountSVG(type, worn, size, moodClass){
+  const M = MOUNTS[type] || MOUNTS.pony;
+  const uni = type === 'unicorn', dra = type === 'dragon';
+  const w = worn || [];
+  const eq = slot => { const it = SHOP.find(o => o.slot===slot && w.includes(o.id)); return it ? it.e : ''; };
+  const T = (em,x,y,fs)=> em ? '<text x="'+x+'" y="'+y+'" font-size="'+fs+'" text-anchor="middle">'+em+'</text>' : '';
+  let p = '';
+  /* queue */
+  if(dra){
+    p += '<path class="m-tail" d="M28,46 Q10,50 6,62 L14,58 Q13,52 28,52 Z" fill="'+M.body+'"/>' +
+         '<polygon class="m-tail" points="4,64 12,58 10,66" fill="'+M.mane+'"/>';
+  } else {
+    p += '<path class="m-tail" d="M28,44 Q14,46 11,62" stroke="'+M.mane+'" stroke-width="6" fill="none" stroke-linecap="round"/>';
+  }
+  /* pattes arrière (animées à la marche) */
+  p += '<g class="m-legB"><rect x="34" y="50" width="5.5" height="24" rx="2.5" fill="'+M.body+'"/>' +
+       '<rect x="43" y="50" width="5.5" height="24" rx="2.5" fill="'+M.mane+'" opacity=".85"/></g>';
+  /* aile de dragon (derrière le corps) */
+  if(dra) p += '<path d="M48,36 Q36,14 22,18 Q34,28 42,40 Z" fill="'+M.belly+'" stroke="'+M.mane+'" stroke-width="1.5"/>';
+  /* corps + ventre (respiration) */
+  p += '<g class="m-body"><ellipse cx="50" cy="46" rx="24" ry="14" fill="'+M.body+'"/>' +
+       '<ellipse cx="50" cy="52" rx="15" ry="6.5" fill="'+M.belly+'"/></g>';
+  /* pics dorsaux du dragon */
+  if(dra) p += '<path d="M32,34 L36,26 L40,34 L44,25 L48,34 L52,26 L56,34 Z" fill="'+M.mane+'"/>';
+  /* pattes avant */
+  p += '<g class="m-legF"><rect x="58" y="50" width="5.5" height="24" rx="2.5" fill="'+M.body+'"/>' +
+       '<rect x="67" y="50" width="5.5" height="24" rx="2.5" fill="'+M.mane+'" opacity=".85"/></g>';
+  /* cou + tête */
+  p += '<path d="M62,44 L74,20 L84,26 L74,50 Z" fill="'+M.body+'"/>';
+  if(!dra) p += '<path d="M73,13 Q68,26 64,40 Q71,37 76,26 Q79,18 80,14 Z" fill="'+M.mane+'"/>';
+  p += '<ellipse cx="82" cy="23" rx="10" ry="8" fill="'+M.body+'"/>' +
+       '<ellipse cx="90" cy="26" rx="5" ry="4" fill="'+M.belly+'"/>' +
+       '<circle cx="91.5" cy="26" r=".9" fill="#5b3a29"/>' +
+       '<polygon class="m-ear" points="76,9 80,18 71,17" fill="'+M.body+'"/>';
+  if(uni) p += '<polygon points="82,2 85,13 79,13" fill="#fbbf24"/>';
+  if(dra) p += '<polygon points="84,10 88,15 82,16" fill="'+M.mane+'"/>';
+  /* œil + paupière (clignement) */
+  p += '<circle cx="82" cy="21.5" r="1.9" fill="#3f2d20"/>' +
+       '<rect class="m-lid" x="79.4" y="19" width="5.2" height="4.4" rx="2.2" fill="'+M.body+'"/>';
+  /* équipements portés */
+  p += T(eq('wings'), 42, 28, 16) + T(eq('back'), 49, 36, 13) + T(eq('tail'), 14, 54, 11) +
+       T(eq('neck'), 71, 42, 12) + T(eq('head'), 80, 10, 13) + T(eq('face'), 86, 27, 10);
+  return '<svg class="m-root ' + (moodClass||'') + '" width="' + size + '" height="' + Math.round(size*0.84) +
+    '" viewBox="0 0 100 84" xmlns="http://www.w3.org/2000/svg">' + p + '</svg>';
+}
+
+/* ============ COMPAGNON : JAUGES & HUMEUR (bienveillant, jamais punitif) ============ */
+const PET_FLOOR = 15;
+const DECAY = { faim: 48*3600e3, forme: 72*3600e3, joie: 96*3600e3 }; /* −100 sur la durée */
+function petNow(){
+  const now = Date.now(), dt = Math.max(0, now - (save.pet.last || now));
+  const v = k => Math.max(PET_FLOOR, Math.min(100, save.pet[k] - 100*dt/DECAY[k]));
+  return { faim:v('faim'), forme:v('forme'), joie:v('joie') };
+}
+/* fige les valeurs courantes avant toute modification */
+function materializePet(){
+  const g = petNow();
+  save.pet.faim = g.faim; save.pet.forme = g.forme; save.pet.joie = g.joie;
+  save.pet.last = Date.now();
+}
+function petMood(g){
+  const avg = (g.faim + g.forme + g.joie) / 3;
+  if(avg < 40){
+    if(g.faim <= g.forme && g.faim <= g.joie) return { cls:'sad', msg: fillTemplate('{N} a un petit creux 🍎') };
+    if(g.forme <= g.joie) return { cls:'sad', msg: fillTemplate('{N} aimerait bien se dégourdir les pattes 🚶') };
+    return { cls:'sad', msg: fillTemplate('{N} a envie de câlins 💛 (touche la scène !)') };
+  }
+  if(avg >= 80) return { cls:'', msg: fillTemplate('{N} est en pleine forme, prêt pour la course ! 🌟') };
+  return { cls:'', msg: fillTemplate('{N} est bien content de te voir 😊') };
+}
+function petStageSize(){ return window.matchMedia('(min-width: 900px)').matches ? 190 : 135; }
+function raceSize(){ return window.matchMedia('(min-width: 900px)').matches ? 72 : 46; }
+function renderPet(extraClass){
+  const g = petNow();
+  const mood = petMood(g);
+  const holder = document.getElementById('pet-holder');
+  if(holder) holder.innerHTML = mountSVG(save.mount.type, save.equip.worn, petStageSize(), mood.cls + (extraClass ? ' ' + extraClass : ''));
+  const m = document.getElementById('pet-mood');
+  if(m) m.textContent = mood.msg;
+  const set = (id,v)=>{ const el = document.getElementById(id); if(el) el.style.width = Math.round(v)+'%'; };
+  set('g-faim', g.faim); set('g-forme', g.forme); set('g-joie', g.joie);
+}
+
+/* ============ COMPAGNON : ACTIONS ============ */
+function neigh(){ beep(620, 0.1, 0.1); setTimeout(()=>beep(780, 0.16, 0.1), 130); }
+function clipClop(){
+  let i = 0;
+  const id = setInterval(()=>{ beep(i%2 ? 140 : 175, 0.05, 0.1); if(++i > 14) clearInterval(id); }, 260);
+}
+function petTap(ev){
+  materializePet();
+  save.pet.joie = Math.min(100, save.pet.joie + 2);
+  persist();
+  const stage = document.getElementById('pet-stage');
+  const r = stage.getBoundingClientRect();
+  const h = document.createElement('span');
+  h.className = 'heart'; h.textContent = '❤';
+  h.style.left = Math.max(6, Math.min(r.width-20, (ev.clientX||r.width/2) - r.left - 8)) + 'px';
+  h.style.top  = Math.max(6, Math.min(r.height-30, (ev.clientY||r.height/2) - r.top - 10)) + 'px';
+  stage.appendChild(h);
+  setTimeout(()=>h.remove(), 1300);
+  neigh();
+  renderPet('joy');
+}
+function feedPet(id){
+  const f = FOODS.find(o=>o.id===id);
+  if(!f) return;
+  if(save.apples < f.price){
+    document.getElementById('pet-mood').textContent = 'Pas assez de 🍎... gagne des pommes en lisant des histoires !';
+    return;
+  }
+  materializePet();
+  save.apples -= f.price;
+  save.pet.faim = Math.min(100, save.pet.faim + f.faim);
+  save.pet.joie = Math.min(100, save.pet.joie + (f.joie||0));
+  persist();
+  beep(660, 0.08, 0.1); setTimeout(()=>beep(880, 0.1, 0.1), 110);
+  renderWallet(); renderFoodGrid(); renderPet('joy');
+  document.getElementById('pet-mood').textContent = fillTemplate('{N} croque ' + f.e + ' avec appétit. Miam !');
+}
+function brushPet(){
+  const now = Date.now();
+  if(now - (save.pet.brushLast||0) < 4*3600e3){
+    document.getElementById('pet-mood').textContent = fillTemplate('{N} est déjà tout beau ✨ Reviens un peu plus tard !');
+    return;
+  }
+  materializePet();
+  save.pet.brushLast = now;
+  save.pet.joie = Math.min(100, save.pet.joie + 15);
+  persist();
+  const stage = document.getElementById('pet-stage');
+  for(let i=0;i<5;i++){
+    const s = document.createElement('span');
+    s.className = 'heart'; s.textContent = '✨';
+    s.style.left = (30 + Math.random()*40) + '%';
+    s.style.top = (30 + Math.random()*40) + '%';
+    s.style.animationDelay = (i*0.12)+'s';
+    stage.appendChild(s);
+    setTimeout(()=>s.remove(), 1600);
+  }
+  beep(880, 0.08, 0.08);
+  renderPet('joy');
+  document.getElementById('pet-mood').textContent = fillTemplate('{N} adore le brossage, quel beau poil ! ✨');
+}
+function walkPet(){
+  const today = dayStr(new Date());
+  if(save.pet.walkDay === today){
+    document.getElementById('pet-mood').textContent = fillTemplate('{N} a déjà eu sa promenade du jour 🚶 À demain !');
+    return;
+  }
+  materializePet();
+  save.pet.walkDay = today;
+  save.pet.forme = Math.min(100, save.pet.forme + 25);
+  save.pet.joie = Math.min(100, save.pet.joie + 8);
+  persist();
+  renderPet('walk');
+  const holder = document.getElementById('pet-holder');
+  holder.classList.add('walking');
+  clipClop();
+  setTimeout(()=>{ holder.classList.remove('walking'); renderPet(); }, 4100);
+  document.getElementById('pet-mood').textContent = fillTemplate('{N} part en promenade, quel bonheur ! 🚶');
+}
+
+/* ============ PANNEAUX : NOURRITURE / BOUTIQUE / RÉGLAGES ============ */
+function togglePanel(id){
+  ['panel-food','panel-shop','panel-settings'].forEach(p=>{
+    const el = document.getElementById(p);
+    if(p === id) el.classList.toggle('open');
+    else el.classList.remove('open');
+  });
+  if(document.getElementById(id).classList.contains('open')){
+    if(id==='panel-food') renderFoodGrid();
+    if(id==='panel-shop'){ renderShopGrid(); renderMountGrid(); }
+    if(id==='panel-settings') fillSettings();
+  }
+}
+function renderFoodGrid(){
+  const box = document.getElementById('food-grid');
+  box.innerHTML = '';
+  FOODS.forEach(f=>{
+    const d = document.createElement('div');
+    d.className = 'shop-item' + (save.apples < f.price ? '' : ' owned');
+    d.innerHTML = '<span class="se">'+f.e+'</span>'+f.name+'<br><span class="sp">'+f.price+' 🍎</span>';
+    d.onclick = ()=>feedPet(f.id);
+    box.appendChild(d);
+  });
+}
+function renderShopGrid(){
+  const box = document.getElementById('shop-grid');
+  box.innerHTML = '';
+  SHOP.forEach(it=>{
+    const owned = save.equip.owned.includes(it.id);
+    const worn = save.equip.worn.includes(it.id);
+    const d = document.createElement('div');
+    d.className = 'shop-item' + (worn ? ' worn' : owned ? ' owned' : '');
+    d.innerHTML = '<span class="se">'+it.e+'</span>'+it.name+'<br><span class="sp">' +
+      (worn ? 'porté ✓' : owned ? 'à porter' : it.price + ' 🍎') + '</span>';
+    d.onclick = ()=>shopTap(it.id);
+    box.appendChild(d);
+  });
+}
+function shopTap(id){
+  const it = SHOP.find(o=>o.id===id);
+  if(!it) return;
+  if(!save.equip.owned.includes(id)){
+    if(save.apples < it.price){ beep(180, 0.1, 0.06); return; }
+    save.apples -= it.price;
+    save.equip.owned.push(id);
+    fanfare();
+  }
+  /* un seul équipement porté par slot */
+  if(save.equip.worn.includes(id)){
+    save.equip.worn = save.equip.worn.filter(x=>x!==id);
+  } else {
+    save.equip.worn = save.equip.worn.filter(x=>{
+      const o = SHOP.find(s=>s.id===x); return o && o.slot !== it.slot;
+    });
+    save.equip.worn.push(id);
+    beep(760, 0.08, 0.1);
+  }
+  persist();
+  renderWallet(); renderShopGrid(); renderPet('joy');
+}
+function renderMountGrid(){
+  const box = document.getElementById('mount-grid');
+  box.innerHTML = '';
+  Object.keys(MOUNTS).forEach(t=>{
+    const m = MOUNTS[t];
+    const owned = save.mount.owned.includes(t);
+    const sel = save.mount.type === t;
+    const d = document.createElement('div');
+    d.className = 'shop-item' + (sel ? ' worn' : owned ? ' owned' : '');
+    d.innerHTML = '<span class="se">'+m.em+'</span>'+m.label+'<br><span class="sp">' +
+      (sel ? 'choisi ✓' : owned ? 'choisir' : m.price + ' 🍎') + '</span>';
+    d.onclick = ()=>mountTap(t);
+    box.appendChild(d);
+  });
+}
+function mountTap(t){
+  const m = MOUNTS[t];
+  if(!save.mount.owned.includes(t)){
+    if(save.apples < m.price){ beep(180, 0.1, 0.06); return; }
+    save.apples -= m.price;
+    save.mount.owned.push(t);
+    fanfare(); confetti();
+  }
+  save.mount.type = t;
+  persist();
+  /* re-render global : compagnon, portefeuille, titres des histoires, titre appli */
+  applyAppTitle(); renderWallet(); renderMountGrid(); renderPet('joy'); renderHome();
+}
+function fillSettings(){
+  document.getElementById('set-hero').value = save.hero.name;
+  document.getElementById('set-mount').value = save.mount.name;
+  setGender(save.hero.g, true);
+}
+function setGender(g, silent){
+  save.hero.g = (g === 'm') ? 'm' : 'f';
+  document.getElementById('seg-f').classList.toggle('on', save.hero.g==='f');
+  document.getElementById('seg-m').classList.toggle('on', save.hero.g==='m');
+  if(!silent) beep(660, 0.05, 0.06);
+}
+function saveSettings(){
+  save.hero.name = sanitizeName(document.getElementById('set-hero').value, 'Léa');
+  save.mount.name = sanitizeName(document.getElementById('set-mount').value, MOUNTS[save.mount.type].label);
+  persist();
+  applyAppTitle(); renderPet('joy'); renderHome();
+  document.getElementById('pet-mood').textContent = fillTemplate('Enchanté {P} ! {N} est ravi de faire équipe avec toi 💛');
+  beep(760, 0.1, 0.1);
+}
 /* ============ RAPPELS QUOTIDIENS (notifications) ============ */
 function maybeShowNotifCard(){
   try{
@@ -396,14 +898,12 @@ async function enableNotifs(){
     }
   }catch(_){}
 }
-
 /* ============ ÉTAT ============ */
 let currentIdx = 0, wordEls = [], raceTimer = null,
     audioCtx = null, wakeLock = null, noResultTimer = null;
 const state = { target:[], status:[], progress:0, startTime:null, running:false,
                 finalTranscript:'', streak:0, flyDone:false, childFinished:false, gotAnyResult:false,
                 wordTime:[], gaps:[], pauseResults:[], proper:new Set(), hurdleEls:{} };
-
 /* ============ MOTEUR VOCAL : Vosk intégré + secours Google ============ */
 const VOSK_LIB = 'https://cdn.jsdelivr.net/npm/vosk-browser@0.0.8/dist/vosk.js';
 const MODEL_URL = 'models/fr.tar.gz';
@@ -596,43 +1096,11 @@ function confetti(){
     setTimeout(()=>s.remove(), 3600);
   }
 }
-
 /* ============ NAVIGATION ============ */
 function show(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 }
-function renderHome(){
-  const total = totalStars();
-  document.getElementById('total-stars').textContent = '⭐ ' + total + ' / ' + (STORIES.length*3);
-  const box = document.getElementById('story-list');
-  box.innerHTML = '';
-  LEVELS.forEach(lv=>{
-    const h = document.createElement('div');
-    h.className = 'level-title'; h.textContent = lv.name;
-    box.appendChild(h);
-    for(let i=lv.from; i<=lv.to && i<STORIES.length; i++){
-      const s = STORIES[i];
-      const un = isUnlocked(i);
-      const c = document.createElement('div');
-      c.className = 'story-card' + (un ? '' : ' locked');
-      if(un){
-        c.innerHTML = `<span class="emoji">${s.emoji}</span>
-          <span class="mid"><span class="title">${s.title}</span><br>
-          <span class="pace">${PACE_LABEL(s.target)}</span></span>
-          <span class="stars">${'⭐'.repeat(s.best)}${'☆'.repeat(3-s.best)}</span>`;
-        c.onclick = ()=>openStory(i);
-      } else {
-        c.innerHTML = `<span class="emoji">${s.emoji}</span>
-          <span class="mid"><span class="title">${s.title}</span><br>
-          <span class="unlock-note">Encore ${s.need - total} ⭐ pour débloquer</span></span>
-          <span class="lock">🔒</span>`;
-      }
-      box.appendChild(c);
-    }
-  });
-}
-
 /* ============ EXERCICE ============ */
 function normalize(w){
   return w.toLowerCase().normalize('NFD')
@@ -697,13 +1165,46 @@ function applyTheme(th){
     track.appendChild(el);
   });
 }
+
+function renderHome(){
+  renderWallet();
+  const total = totalStars();
+  const box = document.getElementById('story-list');
+  box.innerHTML = '';
+  LEVELS.forEach(lv=>{
+    const h = document.createElement('div');
+    h.className = 'level-title'; h.textContent = lv.name;
+    box.appendChild(h);
+    for(let i=lv.from; i<=lv.to && i<STORIES.length; i++){
+      const s = STORIES[i];
+      const un = isUnlocked(i);
+      const title = fillTemplate(s.title);
+      const c = document.createElement('div');
+      c.className = 'story-card' + (un ? '' : ' locked');
+      if(un){
+        c.innerHTML = `<span class="emoji">${s.emoji}</span>
+          <span class="mid"><span class="title">${title}</span><br>
+          <span class="pace">${PACE_LABEL(s.target)}</span></span>
+          <span class="stars">${'⭐'.repeat(s.best)}${'☆'.repeat(3-s.best)}</span>`;
+        c.onclick = ()=>openStory(i);
+      } else {
+        c.innerHTML = `<span class="emoji">${s.emoji}</span>
+          <span class="mid"><span class="title">${title}</span><br>
+          <span class="unlock-note">Encore ${s.need - total} ⭐ pour débloquer</span></span>
+          <span class="lock">🔒</span>`;
+      }
+      box.appendChild(c);
+    }
+  });
+}
+
 function openStory(i){
   if(!isUnlocked(i)) return;
   stopAll();
   ensureVosk();
   currentIdx = i;
   const s = STORIES[i];
-  Object.assign(state, { target:tokenize(s.text), progress:0, startTime:null, running:false,
+  Object.assign(state, { target:tokenize(fillTemplate(s.text)), progress:0, startTime:null, running:false,
     finalTranscript:'', streak:0, flyDone:false, childFinished:false, gotAnyResult:false,
     wordTime:[], gaps:[], pauseResults:[], hurdleEls:{} });
   state.status = new Array(state.target.length).fill('pending');
@@ -711,7 +1212,7 @@ function openStory(i){
   state.pauseResults = new Array(state.target.length).fill(null);
   state.proper = computeProper(state.target);
 
-  document.getElementById('read-title').textContent = s.emoji + ' ' + s.title + ' — bats Zip 🦋 !';
+  document.getElementById('read-title').textContent = s.emoji + ' ' + fillTemplate(s.title) + ' — bats Zip 🦋 !';
   const disp = document.getElementById('text-display');
   disp.innerHTML = '';
   wordEls = state.target.map(w=>{
@@ -721,19 +1222,27 @@ function openStory(i){
     return sp;
   });
 
-  /* décor du thème + obstacles liés aux pauses de ponctuation */
+  /* décor du thème + obstacles liés aux pauses de ponctuation.
+     Textes longs (>10 mots-pause) : obstacles uniquement en fin de phrase,
+     mais l'évaluation statistique des pauses reste sur TOUTES les ponctuations. */
   applyTheme(s.theme);
   document.querySelectorAll('.hurdle').forEach(h=>h.remove());
   const track = document.querySelector('.track');
   const n = state.target.length;
+  const pauseCount = state.target.filter((w,k)=>w.pause && k<n-1).length;
+  const onlySentenceEnds = pauseCount > 10;
   state.target.forEach((w, k)=>{
     if(!w.pause || k >= n-1) return;
+    if(onlySentenceEnds && !/[.!?…»]$/.test(w.raw)) return;
     const h = document.createElement('span');
     h.className = 'hurdle'; h.textContent = s.theme.obstacle;
     h.style.left = (100*(k+1)/n * 0.85) + '%';
     track.appendChild(h);
     state.hurdleEls[k] = h;
   });
+
+  /* le compagnon SVG (avec ses équipements) court sur la piste */
+  document.getElementById('pony').innerHTML = mountSVG(save.mount.type, save.equip.worn, raceSize(), '');
 
   renderText(); scrollToCurrent(false);
   moveActor('pony', 0); moveActor('fly', 0);
@@ -745,6 +1254,70 @@ function openStory(i){
   document.getElementById('btn-quit').style.display = 'none';
   document.getElementById('spark').style.display = 'none';
   show('screen-read');
+}
+
+/* ============ FIN & ÉTOILES ============ */
+function finishExercise(){
+  if(!state.running) return;
+  stopAll();
+  const elapsedMs = state.startTime ? (Date.now()-state.startTime) : 0;
+  const minutes = Math.max(elapsedMs/60000, 0.05);
+  const correct = state.status.filter(s=>s==='read').length;
+  const mclm = Math.round(correct/minutes);
+  const precision = Math.round(100*correct/state.target.length);
+  const beatFly = state.childFinished && !state.flyDone;
+  const stars = (precision>=90 && beatFly) ? 3 : (precision>=75) ? 2 : 1;
+
+  const beforeUnlocked = STORIES.map((_,i)=>isUnlocked(i));
+  STORIES[currentIdx].best = Math.max(STORIES[currentIdx].best, stars);
+  save.stars[STORIES[currentIdx].id] = STORIES[currentIdx].best;
+
+  /* économie : pommes gagnées + série quotidienne */
+  const appleGain = stars * 10;
+  save.apples += appleGain;
+  const streakBonus = bumpStreak();
+  persist();
+
+  const newly = STORIES.filter((_,i)=>!beforeUnlocked[i] && isUnlocked(i));
+  if(stars === 3 || newly.length){ fanfare(); confetti(); } else beep(784, 0.2, 0.12);
+
+  const mName = save.mount.name;
+  const mE = MOUNTS[save.mount.type].g === 'f' ? 'e' : '';
+  document.getElementById('res-stars').textContent = '⭐'.repeat(stars) + '☆'.repeat(3-stars);
+  document.getElementById('res-race').textContent = beatFly
+    ? '🏁 ' + mName + ' est arrivé' + mE + ' avant Zip le papillon !'
+    : '🦋 Zip est arrivé le premier cette fois... revanche ?';
+  document.getElementById('res-message').textContent =
+    stars===3 ? '🎉 Course parfaite ! ' + mName + ' est super ' + (mE ? 'fière' : 'fier') + ' de toi !' :
+    stars===2 ? '💪 Très belle lecture ! Bats Zip pour la 3e étoile.' :
+                '🌱 Bon début ! Relis cette histoire pour rattraper Zip.';
+  document.getElementById('res-apples').textContent = '🍎 +' + appleGain + ' pommes' +
+    (streakBonus ? ' · 🔥 série de ' + save.streak.count + ' j : +' + streakBonus + ' 🍎' : '');
+
+  document.getElementById('res-mclm').textContent = mclm;
+  document.getElementById('res-prec').textContent = precision + ' %';
+
+  const evald = state.pauseResults.filter(r=>r==='ok'||r==='fast').length;
+  const okp = state.pauseResults.filter(r=>r==='ok').length;
+  document.getElementById('res-pausesv').textContent = evald ? (okp + ' / ' + evald) : '—';
+  let ptxt = '';
+  if(evald >= 3 && okp/evald >= 0.8) ptxt = '🎭 Lecture expressive, bravo !';
+  else if(evald >= 2 && okp/evald < 0.4) ptxt = 'Astuce : respire aux virgules et aux points pour sauter les obstacles 😊';
+  document.getElementById('res-pauses').textContent = ptxt;
+
+  document.getElementById('res-unlock').textContent = newly.length
+    ? '🔓 ' + (newly.length > 1 ? 'Nouvelles histoires débloquées : ' : 'Nouvelle histoire débloquée : ')
+      + newly.map(s=>s.emoji + ' ' + fillTemplate(s.title)).join(' · ')
+    : '';
+
+  const missed = state.target.filter((_,i)=>state.status[i]!=='read').map(w=>w.raw);
+  document.getElementById('missed-words').innerHTML = missed.length
+    ? 'Mots à apprivoiser : <b>' + missed.slice(0,6).join(' · ') + '</b>'
+    : '💯 Tu as lu tous les mots !';
+  const nx = currentIdx + 1;
+  document.getElementById('btn-next').style.display =
+    (nx < STORIES.length && isUnlocked(nx)) ? 'inline-block' : 'none';
+  show('screen-results');
 }
 function moveActor(id, pct){
   const left = (Math.min(pct,100) * 0.85) + '%';
@@ -759,7 +1332,6 @@ function scrollToCurrent(smooth=true){
   if(smooth) box.scrollTo({top:target, behavior:'smooth'});
   else box.scrollTop = target;
 }
-
 /* ============ DÉMARRAGE LECTURE ============ */
 async function micTap(){
   if(state.running) return;
@@ -817,7 +1389,6 @@ function showCompat(){
   w.style.display = 'block';
   w.innerHTML = 'Ce navigateur ne peut pas faire de reconnaissance vocale.<br>Essaie avec <b>Chrome</b> à jour 😊';
 }
-
 /* Alignement tolérant : fenêtre de 4 mots + Levenshtein, indulgence sur les mots-outils */
 function processTranscript(spoken){
   const spokenWords = spoken.split(/\s+/).map(normalize).filter(Boolean);
@@ -891,15 +1462,19 @@ function processTranscript(spoken){
     const ok = gap >= need;
     state.pauseResults[k] = ok ? 'ok' : 'fast';
     const h = state.hurdleEls[k];
-    pony.classList.remove('hop','hop-big','stumble'); void pony.offsetWidth;
-    if(ok){
-      if(h){ h.textContent='✨'; h.classList.add('jumped'); }
-      pony.classList.add('hop-big');
-      beep(880, 0.16, 0.13); if(navigator.vibrate) navigator.vibrate(40);
-    } else {
-      if(h) h.classList.add('crushed');
-      pony.classList.add('stumble');
-      beep(180, 0.14, 0.07);
+    /* v11 : sur les textes longs, seuls les fins de phrase ont un obstacle ;
+       les anims saut/chute ne jouent que si un obstacle existe (l'évaluation, elle, reste faite) */
+    if(h){
+      pony.classList.remove('hop','hop-big','stumble'); void pony.offsetWidth;
+      if(ok){
+        h.textContent='✨'; h.classList.add('jumped');
+        pony.classList.add('hop-big');
+        beep(880, 0.16, 0.13); if(navigator.vibrate) navigator.vibrate(40);
+      } else {
+        h.classList.add('crushed');
+        pony.classList.add('stumble');
+        beep(180, 0.14, 0.07);
+      }
     }
   }
 
@@ -939,60 +1514,6 @@ function renderText(){
     wordEls[i].className = cls;
   });
 }
-
-/* ============ FIN & ÉTOILES ============ */
-function finishExercise(){
-  if(!state.running) return;
-  stopAll();
-  const elapsedMs = state.startTime ? (Date.now()-state.startTime) : 0;
-  const minutes = Math.max(elapsedMs/60000, 0.05);
-  const correct = state.status.filter(s=>s==='read').length;
-  const mclm = Math.round(correct/minutes);
-  const precision = Math.round(100*correct/state.target.length);
-  const beatFly = state.childFinished && !state.flyDone;
-  const stars = (precision>=90 && beatFly) ? 3 : (precision>=75) ? 2 : 1;
-
-  const beforeUnlocked = STORIES.map((_,i)=>isUnlocked(i));
-  STORIES[currentIdx].best = Math.max(STORIES[currentIdx].best, stars);
-  saveProgress();
-  const newly = STORIES.filter((_,i)=>!beforeUnlocked[i] && isUnlocked(i));
-
-  if(stars === 3 || newly.length){ fanfare(); confetti(); } else beep(784, 0.2, 0.12);
-
-  document.getElementById('res-stars').textContent = '⭐'.repeat(stars) + '☆'.repeat(3-stars);
-  document.getElementById('res-race').textContent = beatFly
-    ? '🏁 Caramel est arrivé avant Zip le papillon !'
-    : '🦋 Zip est arrivé le premier cette fois... revanche ?';
-  document.getElementById('res-message').textContent =
-    stars===3 ? '🎉 Course parfaite ! Caramel est super fier de toi !' :
-    stars===2 ? '💪 Très belle lecture ! Bats Zip pour la 3e étoile.' :
-                '🌱 Bon début ! Relis cette histoire pour rattraper Zip.';
-
-  document.getElementById('res-mclm').textContent = mclm;
-  document.getElementById('res-prec').textContent = precision + ' %';
-
-  const evald = state.pauseResults.filter(r=>r==='ok'||r==='fast').length;
-  const okp = state.pauseResults.filter(r=>r==='ok').length;
-  document.getElementById('res-pausesv').textContent = evald ? (okp + ' / ' + evald) : '—';
-  let ptxt = '';
-  if(evald >= 3 && okp/evald >= 0.8) ptxt = '🎭 Lecture expressive, bravo !';
-  else if(evald >= 2 && okp/evald < 0.4) ptxt = 'Astuce : respire aux virgules et aux points pour sauter les obstacles 😊';
-  document.getElementById('res-pauses').textContent = ptxt;
-
-  document.getElementById('res-unlock').textContent = newly.length
-    ? '🔓 ' + (newly.length > 1 ? 'Nouvelles histoires débloquées : ' : 'Nouvelle histoire débloquée : ')
-      + newly.map(s=>s.emoji + ' ' + s.title).join(' · ')
-    : '';
-
-  const missed = state.target.filter((_,i)=>state.status[i]!=='read').map(w=>w.raw);
-  document.getElementById('missed-words').innerHTML = missed.length
-    ? 'Mots à apprivoiser : <b>' + missed.slice(0,6).join(' · ') + '</b>'
-    : '💯 Tu as lu tous les mots !';
-  const nx = currentIdx + 1;
-  document.getElementById('btn-next').style.display =
-    (nx < STORIES.length && isUnlocked(nx)) ? 'inline-block' : 'none';
-  show('screen-results');
-}
 function nextStory(){
   const nx = Math.min(currentIdx+1, STORIES.length-1);
   if(isUnlocked(nx)) openStory(nx);
@@ -1013,12 +1534,15 @@ function stopAll(){
 const hasWASM = typeof WebAssembly === 'object';
 const hasSR = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
 if(!hasWASM && !hasSR) showCompat();
+loadSave();
 document.getElementById('author-link').href = LINKEDIN_PROFILE;
 document.getElementById('feedback-link').href = FEEDBACK_URL;
 if('serviceWorker' in navigator){ navigator.serviceWorker.register('sw.js').catch(()=>{}); }
-loadProgress();
+applyAppTitle();
+renderPet();
 renderHome();
 maybeShowNotifCard();
+setInterval(()=>renderPet(), 60000);
 </script>
 </body>
 </html>
