@@ -325,7 +325,7 @@ const MOUNTS = {
   pony:    { em:'🐴', label:'Poney',    noun:'poney',    g:'m', kind:'horse',   price:0,   body:'#c8863f', mane:'#8a5a2b', belly:'#e9c391' },
   horse:   { em:'🐎', label:'Cheval',   noun:'cheval',   g:'m', kind:'horse',   price:60,  body:'#a16207', mane:'#3f2412', belly:'#e7c8a0' },
   cat:     { em:'🐱', label:'Chat',     noun:'chat',     g:'m', kind:'cat',     price:80,  body:'#f59e0b', mane:'#b45309', belly:'#fef3c7' },
-  capy:    { em:'🦫', label:'Capybara', noun:'capybara', g:'m', kind:'capy',    price:100, body:'#a8764f', mane:'#6f4e33', belly:'#d9b58e' },
+  capy:    { em:'🦫', label:'Capybara', noun:'capybara', g:'m', kind:'capy',    price:100, body:'#b08e63', mane:'#87683f', belly:'#dcc7a1' },
   dolphin: { em:'🐬', label:'Dauphin',  noun:'dauphin',  g:'m', kind:'dolphin', price:120, body:'#8fb4d9', mane:'#5a86ad', belly:'#eef6fc' },
   lion:    { em:'🦁', label:'Lion',     noun:'lion',     g:'m', kind:'lion',    price:130, body:'#d97706', mane:'#92400e', belly:'#fde68a' },
   unicorn: { em:'🦄', label:'Licorne',  noun:'licorne',  g:'f', kind:'horse',   horn:1, price:150, body:'#f6f0ff', mane:'#f472b6', belly:'#ffffff' },
@@ -629,8 +629,9 @@ function mountSVG(type, worn, size, moodClass){
       p += '<g class="m-tail"><path d="M28,46 Q12,50 10,61" stroke="'+M.body+'" stroke-width="4.5" fill="none" stroke-linecap="round"/>' +
            '<circle cx="10" cy="63" r="3.5" fill="'+M.mane+'"/></g>';
     } else if(K === 'capy'){
-      p += '<g class="m-tail"><circle cx="27" cy="42" r="2.5" fill="'+M.mane+'"/></g>';
-      A.tail = [27,37,10];
+      /* pas de queue chez le capybara : groupe vide (les regles CSS .m-tail restent sans effet) */
+      p += '<g class="m-tail"></g>';
+      A.tail = [26,38,10];
     } else {
       p += '<g class="m-tail"><path d="M28,44 Q14,46 11,62" stroke="'+M.mane+'" stroke-width="6" fill="none" stroke-linecap="round"/></g>';
     }
@@ -650,13 +651,15 @@ function mountSVG(type, worn, size, moodClass){
     p += '<g class="m-legF"><rect x="58" y="'+ly+'" width="5.5" height="'+lh+'" rx="2.5" fill="'+M.body+'"/>' +
          '<rect x="67" y="'+ly+'" width="5.5" height="'+lh+'" rx="2.5" fill="'+M.mane+'" opacity=".85"/></g>';
     if(K === 'capy'){
-      /* cou court : la tete est posee sur le corps */
-      p += '<ellipse cx="78" cy="29" rx="12" ry="10" fill="'+M.body+'"/>' +
-           '<ellipse cx="88" cy="31" rx="6" ry="5" fill="'+M.belly+'"/>' +
-           '<circle cx="90.5" cy="29.5" r="1" fill="#5b3a29"/>' +
-           '<circle class="m-ear" cx="73" cy="17" r="2.8" fill="'+M.mane+'"/>' +
-           eye(79,26);
-      A.wings=[42,26,16]; A.back=[49,34,13]; A.neck=[68,42,12]; A.head=[77,13,13]; A.face=[84,30,10];
+      /* signature capybara : tete en brique, museau carre legerement tombant,
+         oeil et oreille hauts et en arriere, pas de cou */
+      p += '<ellipse cx="70" cy="32" rx="9" ry="9" fill="'+M.body+'"/>' +
+           '<path d="M70,18 Q70,13 77,12 L87,13 Q94,14 94,22 L93,30 Q92,34 85,34 L76,33 Q70,32 70,26 Z" fill="'+M.body+'"/>' +
+           '<path d="M87,14 Q94,15 94,22 L93,30 Q92,34 86,34 L85,14 Z" fill="'+M.belly+'" opacity=".55"/>' +
+           '<ellipse cx="91" cy="17.5" rx="1.3" ry="1" fill="#5b3a29"/>' +
+           '<ellipse class="m-ear" cx="74" cy="11.5" rx="2.6" ry="2.1" fill="'+M.mane+'"/>' +
+           eye(79,20);
+      A.wings=[42,26,16]; A.back=[49,34,13]; A.neck=[66,40,12]; A.head=[80,7,13]; A.face=[87,21,10];
     } else {
       p += '<path d="M62,44 L74,20 L84,26 L74,50 Z" fill="'+M.body+'"/>';
       if(K === 'lion') p += '<circle cx="81" cy="23" r="14" fill="'+M.mane+'"/>';
